@@ -1,0 +1,44 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Halbarad Drawing Program</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="page" class="site">
+        <header id="masthead" class="site-header" role="banner">
+            <div class="dropdown">
+                <button class="dropbtn">File</button>
+                <div class="dropdown-content">
+                    <a href="#">Open</a>
+                    <a href="#">Save</a>
+                    <a href="#">SaveAs</a>
+                    <a href="#">New</a>
+                </div>
+            </div>
+            <div class="dropdown">
+                <button class="dropbtn">Edit</button>
+                <div class="dropdown-content">
+                    <a href="#">Undo</a>
+                    <a href="#">Redo</a>
+                </div>
+            </div>
+            <div class="dropdown">
+                <button class="dropbtn">Help</button>
+                <div class="dropdown-content">
+                    <a href="#">About</a>
+                </div>
+            </div>
+        </header>   
+        <div style="max-height: 100%;max-width:100%;overflow: scroll;">
+            <main id="content" class="site-content" role="main">
+                <canvas id="cnvs" height="4096px" width="4096px"></canvas>
+            </main>
+        </div>
+        <script src="script.js"></script>
+    </div>
+    <div id="footer">
+        <p>This is a paragraph</p>
+    </div>
+</body>
