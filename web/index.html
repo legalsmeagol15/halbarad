@@ -7,6 +7,7 @@
 
 <body>
     <div id="page" class="site">
+        
         <header id="masthead" class="site-header" role="banner">
             <div class="dropdown">
                 <button class="dropbtn">File</button>
@@ -31,14 +32,15 @@
                 </div>
             </div>
         </header>   
-        <div style="max-height: 100%;max-width:100%;overflow: scroll;">
+        <div style="max-height: 100%;max-width: 100%;overflow: scroll; position: relative;">
             <main id="content" class="site-content" role="main">
-                <canvas id="cnvs" height="4096px" width="4096px"></canvas>
+                <canvas id="canvas" height="4096px" width="4096px"></canvas>
             </main>
+        </div>
+        <div id="footer">
+            <p>This is yet another paragraph</p>
         </div>
         <script src="script.js"></script>
     </div>
-    <div id="footer">
-        <p>This is a paragraph</p>
-    </div>
+    
 </body>

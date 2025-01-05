@@ -23,9 +23,6 @@ h2 {
 #masthead {
   position: absolute;
   top: 0;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
   z-index: 9999;
 }
 
@@ -36,6 +33,16 @@ h2 {
 
 a {
   color: var(--color-just-black)
+}
+
+#footer {
+  height: 30px;
+  text-align: center;
+  padding: 5px;
+  background-color: #3c4646;
+  color: #000;
+  position: absolute;
+  bottom: 0;
 }
 
 /* Dropdown Button */
@@ -80,12 +87,3 @@ a {
 /* Change the background color of the dropdown button when the dropdown content is shown */
 .dropdown:hover .dropbtn {background-color: #3e8e41;}
 
-#footer {
-  height: 30px;
-  text-align: center;
-  padding: 5px;
-  background-color: #3c4646;
-  color: #000;
-  position: absolute;
-  bottom: 0;
-}
