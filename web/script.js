@@ -1,3 +1,6 @@
+var today = new Date();
+document.getElementById('current-time').innerHTML=today;
+
 gsap.registerPlugin(ScrollToPlugin, ScrollTrigger);
 
 /* Main navigation */

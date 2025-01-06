@@ -12,17 +12,16 @@ h1,
 h2 {
   text-align: center;
 }
-
-#intro {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  color: var(--color-just-black);
-}
+/* 
+#page {
+  max-height: 100%;
+  max-width: 100%;
+  overflow:hidden;
+  position: relative;
+} */
 
 #masthead {
-  position: absolute;
-  top: 0;
+  float: top;
   z-index: 9999;
 }
 
@@ -38,11 +37,11 @@ a {
 #footer {
   height: 30px;
   text-align: center;
-  padding: 5px;
-  background-color: #3c4646;
+  background-color: #b4e7c6;
   color: #000;
+  float: bottom;
   position: absolute;
-  bottom: 0;
+  bottom: 10;
 }
 
 /* Dropdown Button */
