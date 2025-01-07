@@ -1,8 +1,9 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Halbarad Drawing Program</title>
-
     
     <link rel="stylesheet" type="text/css" href="styles.css">
     <link rel="shortcut icon" href="resources/lighter_hand.jpg">
@@ -15,46 +16,54 @@
 </head>
 
 <body>
-    <div id="page" class="site">
-        <div class="flex-container">
-            <header id="masthead" class="site-header" role="banner">
-                <p>This is a header paragraph</p>>
-                <div class="dropdown">
-                    <button class="dropbtn">File</button>
-                    <div class="dropdown-content">
-                        <a href="#">Open</a>
-                        <a href="#">Save</a>
-                        <a href="#">SaveAs</a>
-                        <a href="#">New</a>
-                    </div>
+    <!-- main drawing space -->
+    <div id="container">
+        <header id="menu">
+            <div class="dropdown">
+                <button class="dropbtn">File</button>
+                <div class="dropdown-content">
+                    <button>Open Project</button>
+                    <button>Save Project</button>
+                    <button>SaveAs Project</button>
+                    <button>New Project</button>
                 </div>
-                <div class="dropdown">
-                    <button class="dropbtn">Edit</button>
-                    <div class="dropdown-content">
-                        <a href="#">Undo</a>
-                        <a href="#">Redo</a>
-                    </div>
-                </div>
-                <div class="dropdown">
-                    <button class="dropbtn">Help</button>
-                    <div class="dropdown-content">
-                        <a href="#">About</a>
-                    </div>
-                </div>
-            </header>   
-            
-
-            <div style="overflow: scroll">
-                <main id="content" class="site-content" role="main">
-                    <canvas id="canvas" height="4096px" width="4096px"></canvas>
-                </main>
             </div>
-
-            <div id="footer">
-                <p>This is a footer</p>
+            <div class="dropdown">
+                <button class="dropbtn">Edit</button>
+                <div class="dropdown-content">
+                    <button>Undo</button>
+                    <button>Redo</button>
+                </div>
             </div>
+            <div class="dropdown">
+                <button class="dropbtn">Help</button>
+                <div class="dropdown-content">
+                    <!-- <button id="about">About</button> -->
+                </div>
+            </div>
+            <button id="about">About</button>
+        </header>
+        <div id="canvas-container">
+            <canvas id="drawingCanvas" width="128px" height="128px"></canvas>
         </div>
-        <script src="script.js"></script>
+        <footer id="info-footer">
+            <p>Info Footer: Here you can add some information about the app.</p>
+        </footer>
     </div>
-    
+
+    <!-- About Modal -->
+    <div id="aboutModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <img src="resources/lighter_hand.jpg" style="width:100%;max-width:300px">
+            <h2>About Halbarad</h2>
+            <p>&copy; 2025 Wesley Oates. All rights reserved.</p>
+            <p>This application allows users to create drawings with a simple interface.</p>
+        </div>
+    </div>
+
+    <!-- behaviors -->
+    <script src="script.js"></script>
 </body>
+
+</html>

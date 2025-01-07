@@ -1,47 +1,21 @@
-var today = new Date();
-document.getElementById('current-time').innerHTML=today;
+// About button functionality
+const aboutButton = document.getElementById('about');
+const aboutModal = document.getElementById('aboutModal');
+const closeModal = document.getElementsByClassName('close')[0];
 
-gsap.registerPlugin(ScrollToPlugin, ScrollTrigger);
-
-/* Main navigation */
-let panelsSection = document.querySelector("#panels"),
-  panelsContainer = document.querySelector("#panels-container"),
-  tween;
-document.querySelectorAll(".anchor").forEach(anchor => {
-  anchor.addEventListener("click", function(e) {
-    e.preventDefault();
-    let targetElem = document.querySelector(e.target.getAttribute("href")),
-      y = targetElem;
-    if (targetElem && panelsContainer.isSameNode(targetElem.parentElement)) {
-      let totalScroll = tween.scrollTrigger.end - tween.scrollTrigger.start,
-        totalMovement = (panels.length - 1) * targetElem.offsetWidth;
-      y = Math.round(tween.scrollTrigger.start + (targetElem.offsetLeft / totalMovement) * totalScroll);
-    }
-    gsap.to(window, {
-      scrollTo: {
-        y: y,
-        autoKill: false
-      },
-      duration: 1
-    });
-  });
+// Open the modal when the About button is clicked
+aboutButton.addEventListener('click', () => {
+    aboutModal.style.display = 'block';
 });
 
-/* Panels */
-const panels = gsap.utils.toArray("#panels-container .panel");
-tween = gsap.to(panels, {
-  xPercent: -100 * ( panels.length - 1 ),
-  ease: "none",
-  scrollTrigger: {
-    trigger: "#panels-container",
-    pin: true,
-    start: "top top",
-    scrub: 1,
-    snap: {
-      snapTo: 1 / (panels.length - 1),
-      inertia: false,
-      duration: {min: 0.1, max: 0.1}
-    },
-    end: () =>  "+=" + (panelsContainer.offsetWidth - innerWidth)
-  }
+// Close the modal when the "x" is clicked
+closeModal.addEventListener('click', () => {
+    aboutModal.style.display = 'none';
+});
+
+// Close the modal when the user clicks anywhere outside of the modal
+window.addEventListener('click', (event) => {
+    if (event.target === aboutModal) {
+        aboutModal.style.display = 'none';
+    }
 });
