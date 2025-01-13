@@ -57,7 +57,7 @@
             <span class="close">&times;</span>
             <img src="resources/lighter_hand.jpg" alt="Logo" class="logo">
             <h2>Halbarad Drawing Program</h2>
-            <form id="loginForm">
+            <form id="loginForm" action="/login_page.js" method="post">
                 <div class="input-group">
                     <label for="username">Username:</label>
                     <input type="text" id="username" name="username" required>
@@ -67,6 +67,7 @@
                     <input type="password" id="password" name="password" required>
                 </div>
                 <button type="submit">Login</button>
+                <button type="button">Register</button>
             </form>
             <div id="message"></div>
         </div>
