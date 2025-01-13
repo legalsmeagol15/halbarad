@@ -78,6 +78,10 @@ body, html {
   height: 40px; /* Fixed height for the footer */
 }
 
+.blur {
+  filter: blur(5px);
+}
+
 /* Modal Styles */
 .modal {
   display: none; /* Hidden by default */
@@ -89,16 +93,22 @@ body, html {
   height: 100%; /* Full height */
   overflow: auto; /* Enable scroll if needed */
   background-color: rgb(0,0,0); /* Fallback color */
-  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
 }
 
 .modal-content {
   background-color: #fefefe;
   margin: 15% auto; /* 15% from the top and centered */
   padding: 20px;
-  border: 1px solid #888;
-  width: 80%; /* Could be more or less, depending on screen size */
+  border-radius: 5px;
+  width: 300px; /* Could be more or less, depending on screen size */
   text-align: center;
+}
+
+.logo {
+  width: 100%; /* Adjust as necessary */
+  max-width: 150px; /* Limit the logo size */
+  margin-bottom: 20px; /* Space below the logo */
 }
 
 .close {
