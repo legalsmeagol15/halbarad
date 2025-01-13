@@ -2,6 +2,8 @@
 set -e
 sqlite3 -version
 
+cd "$(dirname "$0")"
+
 function do_cmd()
 {
     echo "$1"
