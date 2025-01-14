@@ -3,13 +3,24 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 )
 
-func handleIndex(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("handleIndex")
+type route struct {
+	pattern *regexp.Regexp
+	handler http.Handler
+}
+
+func handleError(w http.ResponseWriter, r *http.Request, status int, message string) {
+	w.WriteHeader(status)
+	if status == 404 {
+		fmt.Fprintf(w, message)
+	}
+}
+
+func handleLogin(w http.ResponseWriter, r *http.Request) {
 
 }
-func handleJS(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("handleJS")
+func handleRegister(w http.ResponseWriter, r *http.Request) {
 
 }
