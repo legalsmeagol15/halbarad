@@ -3,13 +3,13 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"regexp"
+
+	"halbarad/server/helpers"
 )
 
-type route struct {
-	pattern *regexp.Regexp
-	handler http.Handler
-}
+var (
+	quadTree = helpers.NewNTree(2)
+)
 
 func handleError(w http.ResponseWriter, r *http.Request, status int, message string) {
 	w.WriteHeader(status)
