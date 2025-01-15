@@ -38,21 +38,21 @@
             <div class="dropdown">
                 <button class="dropbtn">Help</button>
                 <div class="dropdown-content">
-                    <!-- <button id="about">About</button> -->
+                    <button id="about">About</button>
                 </div>
             </div>
-            <button id="about">About</button>
         </header>
         <div id="canvas-container">
             <canvas id="drawingCanvas" width="128px" height="128px"></canvas>
         </div>
-        <footer id="info-footer">
-            <p>Info Footer: Here you can add some information about the app.</p>
+        <footer id="drawingFooter">
+            <p>TODO:  footer that includes coords, page, misc info</p>
         </footer>
     </div>
 
-     <!-- Login Modal -->
-     <div id="loginModal" class="modal">
+        
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
             <img src="resources/lighter_hand.jpg" alt="Logo" class="logo">
@@ -90,7 +90,9 @@
             </form>
         </div>
     </div>
+    <script src="scripts/login.js"></script>
 
+    
     <!-- "About" Modal -->
     <div id="aboutModal" class="modal">
         <div class="modal-content">
@@ -101,9 +103,9 @@
             <p>This application allows users to create drawings with a simple interface.</p>
         </div>
     </div>
+    <script src="scripts/about.js"></script>    
+    
 
-    <!-- behaviors -->
-    <script src="script.js"></script>
 </body>
 
 </html>
