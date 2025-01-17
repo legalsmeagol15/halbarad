@@ -8,7 +8,7 @@ type NTree[T comparable] interface {
 	GetIntersections(region Region) chan T
 	GetRegion(item T) Region
 	GetBoundary() Region
-	Cardinality() int
+	GetCardinality() int
 }
 type nTree[T comparable] struct {
 	bounds      region
@@ -21,11 +21,14 @@ type nTreeNode[T comparable] struct {
 }
 
 func (t *nTree[T]) Add(item T, region Region) error {
-	if _, ok := t.contents[item]; ok {
+	if region.PointA().Cardinality() > t.cardinality {
+		return errors.New("inconsistent cardinality")
+	} else if _, ok := t.contents[item]; ok {
 		return errors.New("duplicate item")
 	}
 }
-func (t *nTree[T]) Cardinality() int { return t.cardinality }
+func (t *nTree[T]) GetBoundary() Region { return t.bounds }
+func (t *nTree[T]) GetCardinality() int { return t.cardinality }
 
 func (t *nTree[T]) Remove(item T) error {
 	if _, ok := t.contents[item]; !ok {
@@ -35,6 +38,6 @@ func (t *nTree[T]) Remove(item T) error {
 	return nil
 }
 
-func NewnTree[T comparable](cardinality int) nTree[T] {
+func NewNTree[T comparable](cardinality int) nTree[T] {
 	return nTree[T]{cardinality: cardinality}
 }
