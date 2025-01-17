@@ -157,3 +157,15 @@ func (r region) GetIntersection(other Region) (Region, bool) {
 	}
 	return result, true
 }
+func (r region) GetContains(other Region) bool {
+	otherCard := other.PointA().Cardinality()
+	if otherCard > r.Cardinality() {
+		return false
+	}
+	for d := 0; d < otherCard; d++ {
+		if r.a[d] > other.PointA()[d] || r.b[d] < other.PointB()[d] {
+			return false
+		}
+	}
+	return true
+}
