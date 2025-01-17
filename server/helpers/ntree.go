@@ -3,18 +3,9 @@ package helpers
 type Ntree interface {
 }
 type ntree struct {
+	cardinality int
 }
 
-type Npoint interface {
-}
-
-type npoint struct {
-}
-
-func NewPoint(...float64) {
-
-}
-
-func NewNTree(dimension int) Ntree {
-	return ntree{}
+func NewNTree(cardinality int) Ntree {
+	return ntree{cardinality: cardinality}
 }
