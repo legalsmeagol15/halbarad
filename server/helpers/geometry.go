@@ -21,6 +21,7 @@ const (
 type Geometry interface {
 	Cardinality() int
 	Simplify() Geometry
+	IsDefined() bool
 }
 
 type Point []float64
@@ -38,6 +39,14 @@ func (p Point) Diff(other Point) Vector {
 		result[d] = p[d] - other[d]
 	}
 	return result
+}
+func (p Point) IsDefined() bool {
+	for _, d := range p {
+		if math.IsNaN(d) || math.IsInf(d, -1) || math.IsInf(d, 1) {
+			return false
+		}
+	}
+	return true
 }
 
 type Vector Point
@@ -65,6 +74,7 @@ type Region interface {
 	Area() float64
 	Perimeter() float64
 	GetIntersection(other Region) (Region, bool)
+	IsDefined() bool
 }
 
 type region struct {
@@ -94,8 +104,8 @@ func (r region) Perimeter() float64 {
 		// TODO:  implement at least for cardinality = 2
 		panic("not implemented")
 	}
-
 }
+func (r region) IsDefined() bool { return r.a.IsDefined() && r.b.IsDefined() }
 func (r region) Simplify() Geometry {
 	if r.Area() == 0 {
 		return r.a
