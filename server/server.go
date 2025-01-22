@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	quadTree = helpers.NewNTree(2)
+	quadTree = helpers.NewNTree[float64](2)
 )
 
 func handleError(w http.ResponseWriter, r *http.Request, status int, message string) {

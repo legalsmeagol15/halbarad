@@ -1,6 +1,8 @@
 package helpers
 
-import "errors"
+import (
+	"errors"
+)
 
 var (
 	nonContainError error = errors.New("node cannot contain error")
@@ -23,19 +25,26 @@ type nTree[T comparable] struct {
 }
 
 func (t *nTree[T]) Add(item T, itemRegion Region) error {
-	if !itemRegion.IsDefined() {
-		return errors.New("region not completely defined.")
-	}
-	if region.PointA().Cardinality() > t.cardinality {
-		return errors.New("inconsistent cardinality")
-	} else if _, ok := t.contents[item]; ok {
-		return errors.New("duplicate item")
-	}
+	// if !itemRegion.IsDefined() {
+	// 	return errors.New("region not completely defined.")
+	// }
+	// if region.PointA().Cardinality() > t.cardinality {
+	// 	return errors.New("inconsistent cardinality")
+	// } else if _, ok := t.contents[item]; ok {
+	// 	return errors.New("duplicate item")
+	// }
 
-	var n *nTreeNode[T] = t.root
-	if !n.bounds.Contains(itemRegion) {
+	// var n *nTreeNode[T] = t.root
+	// intersection, type = n.bounds.
+	// if !n.bounds.Contains(itemRegion) {
+	// 	var newRegion region {
+	// 		bounds: {
+	// 			a: Point{n.}
+	// 		}
+	// 	}
 
-	}
+	// }
+	return nil
 
 }
 func (t *nTree[T]) GetBoundary() Region { return t.root.bounds }
@@ -61,10 +70,11 @@ type nTreeNode[T comparable] struct {
 }
 
 func (n *nTreeNode[T]) add(item T, itemBounds region) error {
-	if !n.bounds.GetContains(itemBounds) {
-		return nonContainError
-	} else if len(n.items) < maxNodeItems || n.depth > maxNodeCapacity {
-		n.items = append(n.items, item)
-		return nil
-	}
+	// if !n.bounds.GetContains(itemBounds) {
+	// 	return nonContainError
+	// } else if len(n.items) < maxNodeItems || n.depth > maxNodeCapacity {
+	// 	n.items = append(n.items, item)
+	// 	return nil
+	// }
+	return nil
 }
