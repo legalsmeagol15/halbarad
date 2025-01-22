@@ -35,7 +35,7 @@ import (
 
 func VecSubtract(b, a []float64) []float64 {
 	card := len(a)
-	new_vec := make([]float64, card, card)
+	new_vec := make([]float64, card)
 	for i, val_a := range a {
 		new_vec[i] = b[i] - val_a
 	}

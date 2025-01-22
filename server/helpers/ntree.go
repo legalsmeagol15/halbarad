@@ -19,32 +19,11 @@ type NTree[T comparable] interface {
 	GetCardinality() int
 }
 type nTree[T comparable] struct {
-	root        *nTreeNode[T]
-	cardinality int
-	contents    map[T]Region
+	root     *nTreeNode[T]
+	contents map[T]Region
 }
 
 func (t *nTree[T]) Add(item T, itemRegion Region) error {
-	// if !itemRegion.IsDefined() {
-	// 	return errors.New("region not completely defined.")
-	// }
-	// if region.PointA().Cardinality() > t.cardinality {
-	// 	return errors.New("inconsistent cardinality")
-	// } else if _, ok := t.contents[item]; ok {
-	// 	return errors.New("duplicate item")
-	// }
-
-	// var n *nTreeNode[T] = t.root
-	// intersection, type = n.bounds.
-	// if !n.bounds.Contains(itemRegion) {
-	// 	var newRegion region {
-	// 		bounds: {
-	// 			a: Point{n.}
-	// 		}
-	// 	}
-
-	// }
-	return nil
 
 }
 func (t *nTree[T]) GetBoundary() Region { return t.root.bounds }
@@ -63,13 +42,33 @@ func NewNTree[T comparable](cardinality int) nTree[T] {
 }
 
 type nTreeNode[T comparable] struct {
-	quad1, quad2, quad3, quad4 *nTreeNode[T]
-	bounds                     region
-	items                      []T
-	depth                      int
+	quads  []*nTreeNode[T]
+	bounds region
+	items  []T
+	depth  int
 }
 
-func (n *nTreeNode[T]) add(item T, itemBounds region) error {
+func (n *nTreeNode[T]) add(item T, itemBounds region) *nTreeNode[T] {
+	if !n.bounds.GetContains(itemBounds) {
+		return nil
+	} else if len(n.items) < maxNodeItems {
+		n.items = append(n.items, item)
+		return n
+	} else {
+		for i, q := range n.quads {
+			if q == nil {
+
+				switch i {
+				case 0:
+					newRegion = newRegion
+				case 1:
+				case 2:
+				case 3:
+				}
+			}
+		}
+	}
+
 	// if !n.bounds.GetContains(itemBounds) {
 	// 	return nonContainError
 	// } else if len(n.items) < maxNodeItems || n.depth > maxNodeCapacity {
@@ -78,3 +77,4 @@ func (n *nTreeNode[T]) add(item T, itemBounds region) error {
 	// }
 	return nil
 }
+func (n *nTreeNode[T]) cardinality() int { return n.bounds.Cardinality() }
