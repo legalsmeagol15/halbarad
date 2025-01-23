@@ -38,9 +38,11 @@ func (r region) Perimeter() float64 {
 	case 0:
 		return 0
 	case 1:
-		return 2 * VecLength(VecSubtract(mat.Row(nil, 0, r.points), mat.Row(nil, 1, r.points)))
+		return r.points.At(1, 0) - r.points.At(0,0)
+	case 2:
+		return VecLength(VecSubtract(mat.Row(nil, 0, r.points), mat.Row(nil, 1, r.points)))
 	default:
-		// TODO:  implement at least for cardinality = 2
+		// TODO:  implement at least for cardinality = 3
 		panic("not implemented")
 	}
 }
