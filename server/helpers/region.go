@@ -13,14 +13,18 @@ type Region interface {
 	GetIntersection(other Region) Region
 	GetUnion(other Region) Region
 	GetContains(other Region) bool
+	GetMin(dimension int) float64
+	GetMax(dimension int) float64
 }
 
 type region struct {
 	points mat.Matrix
 }
 
-func (r region) GetPoints() mat.Matrix { return r.points }
-func (r region) Cardinality() int      { _, c := r.points.Dims(); return c }
+func (r region) GetMin(dimension int) float64 { return r.points.At(0, dimension) }
+func (r region) GetMax(dimension int) float64 { return r.points.At(1, dimension) }
+func (r region) GetPoints() mat.Matrix        { return r.points }
+func (r region) Cardinality() int             { _, c := r.points.Dims(); return c }
 func (r region) Area() float64 {
 	if r.Cardinality() <= 1 {
 		return 0
@@ -38,7 +42,7 @@ func (r region) Perimeter() float64 {
 	case 0:
 		return 0
 	case 1:
-		return r.points.At(1, 0) - r.points.At(0,0)
+		return r.points.At(1, 0) - r.points.At(0, 0)
 	case 2:
 		return VecLength(VecSubtract(mat.Row(nil, 0, r.points), mat.Row(nil, 1, r.points)))
 	default:
@@ -98,15 +102,30 @@ func (r region) GetUnion(other Region) Region {
 	return NewRegion(res_a, res_b)
 }
 func (r region) equals(other region) bool { return mat.Equal(r.points, other.points) }
-func (r region) newQuadrants() []region {
-	center, a1, b3 := make([]float64, r.Cardinality())
-	a, b := mat.Row(nil, 0, r.points), mat.Row(nil, 1, r.points)
-	for i := 1; i < r.Cardinality(); i++ {
-		center[i] = (a[i] + b[i]) / 2
+
+func (r region) getSubRegion(index int) Region {
+	card := r.Cardinality()
+	a, b := make([]float64, r.Cardinality()), make([]float64, card)
+	r0, r1 := mat.Row(nil, 0, r.points), mat.Row(nil, 1, r.GetPoints())
+	for i := 0; i < card; i++ {
+		if (index & (1 << i)) == 0 {
+			a[i] = r0[i]
+			b[i] = (r0[i] + r1[i]) / 2.0
+		} else {
+			a[i] = (r0[i] + r1[i]) / 2.0
+			b[i] = (r1[i])
+		}
 	}
-	return []region {
-		NewRegion(center, 
+	return NewRegion(a, b)
+}
+func (r region) getContainingSubRegion(bounds Region) (int, Region) {
+	for d := 0; d < (2 << r.Cardinality()); d++ {
+		try_region := r.getSubRegion(d)
+		if try_region.GetContains(bounds) {
+			return d, try_region
+		}
 	}
+	return -1, nil
 }
 func NewRegion(pt0, pt1 []float64) Region {
 	if len(pt0) != len(pt1) {
