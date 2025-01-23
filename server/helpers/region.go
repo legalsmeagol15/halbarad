@@ -101,7 +101,8 @@ func (r region) GetUnion(other Region) Region {
 	}
 	return NewRegion(res_a, res_b)
 }
-func (r region) equals(other region) bool { return mat.Equal(r.points, other.points) }
+
+//func (r region) equals(other region) bool { return mat.Equal(r.points, other.points) }
 
 func (r region) getSubRegion(index int) Region {
 	card := r.Cardinality()
