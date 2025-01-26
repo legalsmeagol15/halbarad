@@ -7,20 +7,12 @@ import (
 
 var (
 	errCardMismatch     error = errors.New("cardinality mismatch")
+	errItemContained    error = errors.New("item already contained")
 	errItemNotContained error = errors.New("item not contained")
 	maxNodeItems        int   = 32
 )
 
-type NTree[T comparable] interface {
-	Add(item any, region Region) error
-	Contains(item any) bool
-	GetBounds() Region
-	GetCardinality() int
-	GetCount() int
-	GetIntersections(region Region) []any
-	Remove(item T) error
-}
-type nTree[T comparable] struct {
+type NTree[T comparable] struct {
 	root            *nTreeNode[T]
 	contents_node   map[any]*nTreeNode[T]
 	contents_region map[any]Region
@@ -28,16 +20,17 @@ type nTree[T comparable] struct {
 	count           int
 }
 
-func (t nTree[T]) Add(item any, itemRegion Region) error {
+func (t *NTree[T]) Add(item any, itemRegion Region) error {
 	if _, c := itemRegion.GetPoints().Dims(); c != t.cardinality {
 		return errCardMismatch
-	}
-	if t.root == nil {
+	} else if t.root == nil {
 		t.root = &nTreeNode[T]{
 			parent: nil,
 			bounds: itemRegion.(region),
 			depth:  0,
 		}
+	} else if _, contained := t.contents_node[item]; contained {
+		return errItemContained
 	}
 
 	containingNode := t.root.add(item, itemRegion)
@@ -104,11 +97,11 @@ func (t nTree[T]) Add(item any, itemRegion Region) error {
 	}
 	return nil
 }
-func (t nTree[T]) Contains(item any) bool { _, contained := t.contents_node[item]; return contained }
-func (t nTree[T]) GetBounds() Region      { return t.root.bounds }
-func (t nTree[T]) GetCardinality() int    { return t.cardinality }
-func (t nTree[T]) GetCount() int          { return t.count }
-func (t nTree[T]) GetIntersections(region Region) []any {
+func (t *NTree[T]) Contains(item any) bool { _, contained := t.contents_node[item]; return contained }
+func (t *NTree[T]) GetBounds() Region      { return t.root.bounds }
+func (t *NTree[T]) GetCardinality() int    { return t.cardinality }
+func (t *NTree[T]) GetCount() int          { return t.count }
+func (t *NTree[T]) GetIntersections(region Region) []any {
 	nodes := []*nTreeNode[T]{t.root}
 	result := make([]any, 0)
 	for len(nodes) > 0 {
@@ -136,7 +129,7 @@ func (t nTree[T]) GetIntersections(region Region) []any {
 	}
 	return result
 }
-func (t nTree[T]) Remove(item T) error {
+func (t *NTree[T]) Remove(item T) error {
 	if node, ok := t.contents_node[item]; !ok {
 		return errItemNotContained
 	} else {
@@ -166,8 +159,8 @@ func (t nTree[T]) Remove(item T) error {
 	}
 }
 
-func NewNTree[T comparable](cardinality int) NTree[T] {
-	return nTree[T]{cardinality: cardinality}
+func NewNTree[T comparable](cardinality int) *NTree[T] {
+	return &NTree[T]{cardinality: cardinality}
 }
 
 type nTreeNode[T comparable] struct {
