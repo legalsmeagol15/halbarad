@@ -129,7 +129,7 @@ func (t *NTree[T]) GetIntersections(region Region) []any {
 	}
 	return result
 }
-func (t *NTree[T]) Remove(item T) error {
+func (t *NTree[T]) Remove(item any) error {
 	if node, ok := t.contents_node[item]; !ok {
 		return errItemNotContained
 	} else {
@@ -160,7 +160,11 @@ func (t *NTree[T]) Remove(item T) error {
 }
 
 func NewNTree[T comparable](cardinality int) *NTree[T] {
-	return &NTree[T]{cardinality: cardinality}
+	return &NTree[T]{
+		cardinality:     cardinality,
+		contents_node:   make(map[any]*nTreeNode[T]),
+		contents_region: make(map[any]Region),
+	}
 }
 
 type nTreeNode[T comparable] struct {
