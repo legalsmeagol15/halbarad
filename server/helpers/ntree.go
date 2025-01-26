@@ -13,16 +13,17 @@ var (
 
 type NTree[T comparable] interface {
 	Add(item any, region Region) error
-	GetBoundary() Region
+	Contains(item any) bool
+	GetBounds() Region
 	GetCardinality() int
 	GetCount() int
-	GetIntersections(region Region) []T
+	GetIntersections(region Region) []any
 	Remove(item T) error
 }
 type nTree[T comparable] struct {
 	root            *nTreeNode[T]
-	contents_node   map[T]*nTreeNode[T]
-	contents_region map[T]Region
+	contents_node   map[any]*nTreeNode[T]
+	contents_region map[any]Region
 	cardinality     int
 	count           int
 }
@@ -40,91 +41,93 @@ func (t nTree[T]) Add(item any, itemRegion Region) error {
 	}
 
 	containingNode := t.root.add(item, itemRegion)
+	t.contents_region[item] = itemRegion
 	t.count += 1
 
-	// If we found a containing node
 	if containingNode != nil {
+		// If we found a containing node, it means the item fit on the root or one of its sub-
+		// nodes
 		t.contents_node[item] = containingNode
-		return nil
-	}
+	} else {
+		// If the item couldn't be added to the the root node, it's because it wouldn't fit.  We'll need
+		// to build bigger nodes until we get one that will fit the item.
+		compareNode := t.root
+		card := t.root.bounds.Cardinality()
+		for {
+			// Find which way to expand for each dimension.  If the item's region is within bounds for
+			// any particular dimension, we arbitrarily choose to expand closer to 0.0 for that
+			// dimension.
+			pt0, pt1 := make([]float64, card), make([]float64, card)
+			for d := 0; d < card; d++ {
+				i_min, i_max := itemRegion.GetMin(d), itemRegion.GetMax(d)
+				c_min, c_max := compareNode.bounds.GetMin(d), compareNode.bounds.GetMax(d)
 
-	// If the item couldn't be added to the root node, it's because it wouldn't fit.  We'll need
-	// to build bigger nodes until we get one that will fit the item.
-	compareNode := t.root
-	card := t.root.bounds.Cardinality()
-	for {
-		// Find which way to expand for each dimension.  If the item's region is within bounds for
-		// any particular dimension, we arbitrarily choose to expand closer to 0.0 for that
-		// dimension.
-		pt0, pt1 := make([]float64, card), make([]float64, card)
-		for d := 0; d < card; d++ {
-			i_min, i_max := itemRegion.GetMin(d), itemRegion.GetMax(d)
-			c_min, c_max := compareNode.bounds.GetMin(d), compareNode.bounds.GetMax(d)
-
-			if i_min < c_min {
-				pt0[d] = c_min - (c_max - c_min)
-				pt1[d] = c_max
-			} else if c_max < i_max {
-				pt0[d] = c_min
-				pt1[d] = c_max + (c_max - c_min)
-			} else {
-				if math.Abs(c_min) < math.Abs(c_max) {
+				if i_min < c_min {
 					pt0[d] = c_min - (c_max - c_min)
 					pt1[d] = c_max
-				} else {
+				} else if c_max < i_max {
 					pt0[d] = c_min
 					pt1[d] = c_max + (c_max - c_min)
+				} else {
+					if math.Abs(c_min) < math.Abs(c_max) {
+						pt0[d] = c_min - (c_max - c_min)
+						pt1[d] = c_max
+					} else {
+						pt0[d] = c_min
+						pt1[d] = c_max + (c_max - c_min)
+					}
 				}
 			}
-		}
 
-		// We now know the dimensions of the containing node.  Create it and assign the compareNode
-		// as a subnode.
-		newRegion := NewRegion(pt0, pt1)
-		newNode := nTreeNode[T]{
-			bounds: newRegion.(region),
-			depth:  compareNode.depth - 1,
-			parent: compareNode,
-		}
-		subIdx, _ := newNode.bounds.getContainingSubRegion(compareNode.bounds)
-		if subIdx >= 0 {
-			newNode.subs[subIdx] = compareNode
-			compareNode = &newNode
-		}
+			// We now know the dimensions of the containing node.  Create it and assign the compareNode
+			// as a subnode.
+			newRegion := NewRegion(pt0, pt1)
+			newNode := nTreeNode[T]{
+				bounds: newRegion.(region),
+				depth:  compareNode.depth - 1,
+				parent: compareNode,
+			}
+			subIdx, _ := newNode.bounds.getContainingSubRegion(compareNode.bounds)
+			if subIdx >= 0 {
+				newNode.subs[subIdx] = compareNode
+				compareNode = &newNode
+			}
 
-		// Check if the newly-created node contains the given item.  If so, we're done.  If not,
-		// we'll create an even bigger node containing this new one.
-		if newRegion.GetContains(itemRegion) {
-			newNode.items = append(newNode.items, item)
-			t.root = &newNode
-			return nil
+			// Check if the newly-created node contains the given item.  If so, we're done.  If not,
+			// we'll create an even bigger node containing this new one.
+			if newRegion.GetContains(itemRegion) {
+				newNode.items = append(newNode.items, item)
+				t.root = &newNode
+				return nil
+			}
 		}
 	}
-
+	return nil
 }
-func (t nTree[T]) GetBoundary() Region { return t.root.bounds }
-func (t nTree[T]) GetCardinality() int { return t.cardinality }
-func (t nTree[T]) GetCount() int       { return t.count }
-func (t nTree[T]) GetIntersections(region Region) []T {
+func (t nTree[T]) Contains(item any) bool { _, contained := t.contents_node[item]; return contained }
+func (t nTree[T]) GetBounds() Region      { return t.root.bounds }
+func (t nTree[T]) GetCardinality() int    { return t.cardinality }
+func (t nTree[T]) GetCount() int          { return t.count }
+func (t nTree[T]) GetIntersections(region Region) []any {
 	nodes := []*nTreeNode[T]{t.root}
-	result := make([]T, 0)
+	result := make([]any, 0)
 	for len(nodes) > 0 {
 		// pop
-		focus := nodes[0]
+		n := nodes[0]
 		nodes = nodes[1:]
 
-		i := focus.bounds.GetIntersection(region)
+		i := n.bounds.GetIntersection(region)
 		if i == nil {
 			continue
 		} else {
 			// Get intersectors at this node.
-			for _, item := range focus.items {
+			for _, item := range n.items {
 				if itemBounds, ok := t.contents_region[item]; ok && itemBounds.GetIntersection(region) != nil {
 					result = append(result, item)
 				}
 			}
 			// Append the sub-nodes to the nodes stack
-			for _, sub := range focus.subs {
+			for _, sub := range n.subs {
 				if sub != nil {
 					nodes = append(nodes, sub)
 				}
@@ -139,6 +142,7 @@ func (t nTree[T]) Remove(item T) error {
 	} else {
 		// Delete from the tree' registry, and from the node's list.
 		delete(t.contents_node, item)
+		delete(t.contents_region, item)
 		idx := -1
 		for i, compare := range node.items {
 			if compare == item {
@@ -157,8 +161,9 @@ func (t nTree[T]) Remove(item T) error {
 			node.parent = nil
 			node = parent
 		}
+		t.count -= 1
+		return nil
 	}
-	return nil
 }
 
 func NewNTree[T comparable](cardinality int) NTree[T] {
@@ -169,12 +174,12 @@ type nTreeNode[T comparable] struct {
 	subs   []*nTreeNode[T]
 	parent *nTreeNode[T]
 	bounds region
-	items  []T
+	items  []any
 	depth  int
 }
 
 // Returns the node that contains the given object after the 'add' operation is done.
-func (n *nTreeNode[T]) add(item T, itemBounds Region) *nTreeNode[T] {
+func (n *nTreeNode[T]) add(item any, itemBounds Region) *nTreeNode[T] {
 	if !n.bounds.GetContains(itemBounds) {
 		// The item doesn't fit.  The caller will have to create a larger node
 		return nil
