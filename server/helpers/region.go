@@ -64,6 +64,8 @@ func (r region) GetContains(other Region) bool {
 	}
 	return true
 }
+
+// Returns either nil or the region of intersection
 func (r region) GetIntersection(other Region) Region {
 	_, card := other.GetPoints().Dims()
 	if r.Cardinality() != card {

@@ -12,20 +12,22 @@ var (
 )
 
 type NTree[T comparable] interface {
-	Add(item T, region Region) error
+	Add(item any, region Region) error
 	GetBoundary() Region
 	GetCardinality() int
-	GetIntersections(region Region) chan T
-	GetRegion(item T) Region
+	GetCount() int
+	GetIntersections(region Region) []T
 	Remove(item T) error
 }
 type nTree[T comparable] struct {
-	root        *nTreeNode[T]
-	contents    map[T]*nTreeNode[T]
-	cardinality int
+	root            *nTreeNode[T]
+	contents_node   map[T]*nTreeNode[T]
+	contents_region map[T]Region
+	cardinality     int
+	count           int
 }
 
-func (t *nTree[T]) Add(item T, itemRegion Region) error {
+func (t nTree[T]) Add(item any, itemRegion Region) error {
 	if _, c := itemRegion.GetPoints().Dims(); c != t.cardinality {
 		return errCardMismatch
 	}
@@ -38,10 +40,11 @@ func (t *nTree[T]) Add(item T, itemRegion Region) error {
 	}
 
 	containingNode := t.root.add(item, itemRegion)
+	t.count += 1
 
 	// If we found a containing node
 	if containingNode != nil {
-		t.contents[item] = containingNode
+		t.contents_node[item] = containingNode
 		return nil
 	}
 
@@ -99,15 +102,43 @@ func (t *nTree[T]) Add(item T, itemRegion Region) error {
 	}
 
 }
-func (t *nTree[T]) GetBoundary() Region { return t.root.bounds }
-func (t *nTree[T]) GetCardinality() int { return t.cardinality }
+func (t nTree[T]) GetBoundary() Region { return t.root.bounds }
+func (t nTree[T]) GetCardinality() int { return t.cardinality }
+func (t nTree[T]) GetCount() int       { return t.count }
+func (t nTree[T]) GetIntersections(region Region) []T {
+	nodes := []*nTreeNode[T]{t.root}
+	result := make([]T, 0)
+	for len(nodes) > 0 {
+		// pop
+		focus := nodes[0]
+		nodes = nodes[1:]
 
-func (t *nTree[T]) Remove(item T) error {
-	if node, ok := t.contents[item]; !ok {
+		i := focus.bounds.GetIntersection(region)
+		if i == nil {
+			continue
+		} else {
+			// Get intersectors at this node.
+			for _, item := range focus.items {
+				if itemBounds, ok := t.contents_region[item]; ok && itemBounds.GetIntersection(region) != nil {
+					result = append(result, item)
+				}
+			}
+			// Append the sub-nodes to the nodes stack
+			for _, sub := range focus.subs {
+				if sub != nil {
+					nodes = append(nodes, sub)
+				}
+			}
+		}
+	}
+	return result
+}
+func (t nTree[T]) Remove(item T) error {
+	if node, ok := t.contents_node[item]; !ok {
 		return errItemNotContained
 	} else {
 		// Delete from the tree' registry, and from the node's list.
-		delete(t.contents, item)
+		delete(t.contents_node, item)
 		idx := -1
 		for i, compare := range node.items {
 			if compare == item {
@@ -130,7 +161,7 @@ func (t *nTree[T]) Remove(item T) error {
 	return nil
 }
 
-func NewNTree[T comparable](cardinality int) nTree[T] {
+func NewNTree[T comparable](cardinality int) NTree[T] {
 	return nTree[T]{cardinality: cardinality}
 }
 
@@ -173,7 +204,7 @@ func (n *nTreeNode[T]) isEmpty() bool {
 		return false
 	} else {
 		for _, sub := range n.subs {
-			if !sub.isEmpty() {
+			if sub != nil && !sub.isEmpty() {
 				return false
 			}
 		}
