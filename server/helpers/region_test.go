@@ -7,43 +7,95 @@ import (
 	"gonum.org/v1/gonum/mat"
 )
 
-func Test_region_GetMin(t *testing.T) {
+func TestNewRegion(t *testing.T) {
+	type args struct {
+		pt0 []float64
+		pt1 []float64
+	}
+	tests := []struct {
+		name string
+		args args
+		want Region
+	}{
+		{
+			name: "Instantiation Test",
+			args: args{[]float64{1, 1}, []float64{2, 2}},
+			want: region{points: mat.NewDense(2, 2, []float64{1, 1, 2, 2})},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NewRegion(tt.args.pt0, tt.args.pt1); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewRegion() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_region_GetCardinality(t *testing.T) {
 	type fields struct {
 		points mat.Matrix
-	}
-	type args struct {
-		dimension int
 	}
 	tests := []struct {
 		name   string
 		fields fields
-		args   args
-		want   float64
+		want   int
 	}{
-		struct {
-			name   string
-			fields fields
-			args   args
-			want   float64
-		}{
-			name: "firstTest",
-			fields: fields{
-				points: mat.NewDense(2, 2, []float64{1, 1, 2, 2}),
-			},
+		{
+			name:   "Cardinality Test 1",
+			fields: fields{points: mat.NewDense(2, 1, []float64{1, 2})},
+			want:   1,
 		},
-		struct {
-			name   string
-			fields fields
-			args   args
-			want   float64
-		}{},
+		{
+			name:   "Cardinality Test 2",
+			fields: fields{points: mat.NewDense(2, 2, []float64{1, 1, 2, 2})},
+			want:   2,
+		},
+		{
+			name:   "Cardinality Test 3",
+			fields: fields{points: mat.NewDense(2, 3, []float64{1, 1, 1, 2, 2, 2})},
+			want:   3,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := region{
+				points: tt.fields.points,
+			}
+			if got := r.GetCardinality(); got != tt.want {
+				t.Errorf("region.GetCardinality() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_region_GetMin(t *testing.T) {
+	type fields struct {
+		points mat.Matrix
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   []float64
+	}{
+		{
+			name:   "GetMin2",
+			fields: fields{points: mat.NewDense(2, 2, []float64{1, 1, 2, 2})},
+			want:   []float64{1, 1},
+		},
+		{
+			name:   "GetMin3",
+			fields: fields{points: mat.NewDense(2, 3, []float64{1, 1, 1, 2, 2, 2})},
+			want:   []float64{1, 1, 1},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := region{
 				points: tt.fields.points,
 			}
-			if got := r.GetMin(tt.args.dimension); got != tt.want {
+			if got := r.GetMin(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("region.GetMin() = %v, want %v", got, tt.want)
 			}
 		})
@@ -54,23 +106,28 @@ func Test_region_GetMax(t *testing.T) {
 	type fields struct {
 		points mat.Matrix
 	}
-	type args struct {
-		dimension int
-	}
 	tests := []struct {
 		name   string
 		fields fields
-		args   args
-		want   float64
+		want   []float64
 	}{
-		// TODO: Add test cases.
+		{
+			name:   "GetMax2",
+			fields: fields{points: mat.NewDense(2, 2, []float64{1, 1, 2, 2})},
+			want:   []float64{2, 2},
+		},
+		{
+			name:   "GetMax3",
+			fields: fields{points: mat.NewDense(2, 3, []float64{1, 1, 1, 2, 2, 2})},
+			want:   []float64{2, 2, 2},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := region{
 				points: tt.fields.points,
 			}
-			if got := r.GetMax(tt.args.dimension); got != tt.want {
+			if got := r.GetMax(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("region.GetMax() = %v, want %v", got, tt.want)
 			}
 		})
@@ -100,30 +157,7 @@ func Test_region_GetPoints(t *testing.T) {
 	}
 }
 
-func Test_region_Cardinality(t *testing.T) {
-	type fields struct {
-		points mat.Matrix
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		want   int
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			r := region{
-				points: tt.fields.points,
-			}
-			if got := r.GetCardinality(); got != tt.want {
-				t.Errorf("region.Cardinality() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func Test_region_Area(t *testing.T) {
+func Test_region_GetArea(t *testing.T) {
 	type fields struct {
 		points mat.Matrix
 	}
@@ -140,30 +174,7 @@ func Test_region_Area(t *testing.T) {
 				points: tt.fields.points,
 			}
 			if got := r.GetArea(); got != tt.want {
-				t.Errorf("region.Area() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func Test_region_Perimeter(t *testing.T) {
-	type fields struct {
-		points mat.Matrix
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		want   float64
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			r := region{
-				points: tt.fields.points,
-			}
-			if got := r.GetPerimeter(); got != tt.want {
-				t.Errorf("region.Perimeter() = %v, want %v", got, tt.want)
+				t.Errorf("region.GetArea() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -223,6 +234,29 @@ func Test_region_GetIntersection(t *testing.T) {
 	}
 }
 
+func Test_region_GetPerimeter(t *testing.T) {
+	type fields struct {
+		points mat.Matrix
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   float64
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := region{
+				points: tt.fields.points,
+			}
+			if got := r.GetPerimeter(); got != tt.want {
+				t.Errorf("region.GetPerimeter() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func Test_region_GetUnion(t *testing.T) {
 	type fields struct {
 		points mat.Matrix
@@ -250,18 +284,18 @@ func Test_region_GetUnion(t *testing.T) {
 	}
 }
 
-func Test_region_getSubRegion(t *testing.T) {
+func Test_region_checkCardinality(t *testing.T) {
 	type fields struct {
 		points mat.Matrix
 	}
 	type args struct {
-		index int
+		other Region
 	}
 	tests := []struct {
 		name   string
 		fields fields
 		args   args
-		want   Region
+		want   int
 	}{
 		// TODO: Add test cases.
 	}
@@ -270,8 +304,8 @@ func Test_region_getSubRegion(t *testing.T) {
 			r := region{
 				points: tt.fields.points,
 			}
-			if got := r.getSubRegion(tt.args.index); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("region.getSubRegion() = %v, want %v", got, tt.want)
+			if got := r.checkCardinality(tt.args.other); got != tt.want {
+				t.Errorf("region.checkCardinality() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -309,22 +343,28 @@ func Test_region_getContainingSubRegion(t *testing.T) {
 	}
 }
 
-func TestNewRegion(t *testing.T) {
+func Test_region_getSubRegion(t *testing.T) {
+	type fields struct {
+		points mat.Matrix
+	}
 	type args struct {
-		pt0 []float64
-		pt1 []float64
+		index int
 	}
 	tests := []struct {
-		name string
-		args args
-		want Region
+		name   string
+		fields fields
+		args   args
+		want   Region
 	}{
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewRegion(tt.args.pt0, tt.args.pt1); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewRegion() = %v, want %v", got, tt.want)
+			r := region{
+				points: tt.fields.points,
+			}
+			if got := r.getSubRegion(tt.args.index); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("region.getSubRegion() = %v, want %v", got, tt.want)
 			}
 		})
 	}
