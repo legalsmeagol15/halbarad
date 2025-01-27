@@ -135,6 +135,7 @@ func Test_region_GetMax(t *testing.T) {
 }
 
 func Test_region_GetPoints(t *testing.T) {
+	// This tests a trivially simple function.  Yay for coverage.
 	type fields struct {
 		points mat.Matrix
 	}
@@ -143,6 +144,11 @@ func Test_region_GetPoints(t *testing.T) {
 		fields fields
 		want   mat.Matrix
 	}{
+		{
+			name:   "GetPoints2",
+			fields: fields{mat.NewDense(2, 2, []float64{1, 1, 2, 2})},
+			want:   mat.NewDense(2, 2, []float64{1, 1, 2, 2}),
+		},
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
@@ -166,7 +172,26 @@ func Test_region_GetArea(t *testing.T) {
 		fields fields
 		want   float64
 	}{
-		// TODO: Add test cases.
+		{
+			name:   "GetArea2a",
+			fields: fields{points: mat.NewDense(2, 2, []float64{1, 1, 2, 2})},
+			want:   1.0,
+		},
+		{
+			name:   "GetArea2b",
+			fields: fields{points: mat.NewDense(2, 2, []float64{0, 0, 2, 2})},
+			want:   4.0,
+		},
+		{
+			name:   "GetArea3a",
+			fields: fields{points: mat.NewDense(2, 3, []float64{1, 1, 1, 2, 2, 2})},
+			want:   1.0,
+		},
+		{
+			name:   "GetArea3b",
+			fields: fields{points: mat.NewDense(2, 3, []float64{1, 1, 1, 3, 3, 3})},
+			want:   8.0,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
