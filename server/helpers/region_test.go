@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -397,5 +398,25 @@ func Test_region_GetUnion(t *testing.T) {
 }
 
 func Test_region_checkCardinality(t *testing.T) {
+
+	handlePanic := func() error {
+		if pnc := recover(); pnc != nil {
+			return fmt.Errorf("%s", pnc)
+		}
+		return nil
+	}
+
+	func() {
+		defer handlePanic()
+
+		r := region{points: mat.NewDense(2, 2, []float64{1, 1, 2, 2})}
+		other := region{points: mat.NewDense(2, 3, []float64{1, 1, 1, 2, 2, 2})}
+
+		// This check should panic due to inconsistent cardinality
+		r.checkCardinality(other)
+
+		// Reaching this point means there was no panic.
+		t.Fail()
+	}()
 
 }
