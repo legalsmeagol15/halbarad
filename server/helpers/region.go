@@ -11,8 +11,8 @@ type Region interface {
 	GetCardinality() int
 	GetContains(other Region) bool
 	GetIntersection(other Region) Region
-	GetMin(dimension int) float64
-	GetMax(dimension int) float64
+	GetMin() []float64
+	GetMax() []float64
 	GetPerimeter() float64
 	GetPoints() mat.Matrix
 	GetUnion(other Region) Region
@@ -41,10 +41,10 @@ type region struct {
 	points mat.Matrix
 }
 
-func (r region) GetCardinality() int          { _, c := r.points.Dims(); return c }
-func (r region) GetMin(dimension int) float64 { return r.points.At(0, dimension) }
-func (r region) GetMax(dimension int) float64 { return r.points.At(1, dimension) }
-func (r region) GetPoints() mat.Matrix        { return r.points }
+func (r region) GetCardinality() int   { _, c := r.points.Dims(); return c }
+func (r region) GetMin() []float64     { return mat.Row(nil, 0, r.points) }
+func (r region) GetMax() []float64     { return mat.Row(nil, 1, r.points) }
+func (r region) GetPoints() mat.Matrix { return r.points }
 
 func (r region) GetArea() float64 {
 	card := r.GetCardinality()

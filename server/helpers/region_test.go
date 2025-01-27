@@ -20,7 +20,23 @@ func Test_region_GetMin(t *testing.T) {
 		args   args
 		want   float64
 	}{
-		// TODO: Add test cases.
+		struct {
+			name   string
+			fields fields
+			args   args
+			want   float64
+		}{
+			name: "firstTest",
+			fields: fields{
+				points: mat.NewDense(2, 2, []float64{1, 1, 2, 2}),
+			},
+		},
+		struct {
+			name   string
+			fields fields
+			args   args
+			want   float64
+		}{},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
