@@ -5,11 +5,14 @@ import (
 	"math"
 )
 
+const (
+	maxNodeItems int = 32
+)
+
 var (
 	errCardMismatch     error = errors.New("cardinality mismatch")
 	errItemContained    error = errors.New("item already contained")
 	errItemNotContained error = errors.New("item not contained")
-	maxNodeItems        int   = 32
 )
 
 type NTree[T comparable] struct {
@@ -45,7 +48,7 @@ func (t *NTree[T]) Add(item any, itemRegion Region) error {
 		// If the item couldn't be added to the the root node, it's because it wouldn't fit.  We'll need
 		// to build bigger nodes until we get one that will fit the item.
 		compareNode := t.root
-		card := t.root.bounds.Cardinality()
+		card := t.root.bounds.GetCardinality()
 		for {
 			// Find which way to expand for each dimension.  If the item's region is within bounds for
 			// any particular dimension, we arbitrarily choose to expand closer to 0.0 for that

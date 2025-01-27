@@ -100,7 +100,7 @@ func Test_region_Cardinality(t *testing.T) {
 			r := region{
 				points: tt.fields.points,
 			}
-			if got := r.Cardinality(); got != tt.want {
+			if got := r.GetCardinality(); got != tt.want {
 				t.Errorf("region.Cardinality() = %v, want %v", got, tt.want)
 			}
 		})
@@ -123,7 +123,7 @@ func Test_region_Area(t *testing.T) {
 			r := region{
 				points: tt.fields.points,
 			}
-			if got := r.Area(); got != tt.want {
+			if got := r.GetArea(); got != tt.want {
 				t.Errorf("region.Area() = %v, want %v", got, tt.want)
 			}
 		})
@@ -146,7 +146,7 @@ func Test_region_Perimeter(t *testing.T) {
 			r := region{
 				points: tt.fields.points,
 			}
-			if got := r.Perimeter(); got != tt.want {
+			if got := r.GetPerimeter(); got != tt.want {
 				t.Errorf("region.Perimeter() = %v, want %v", got, tt.want)
 			}
 		})
