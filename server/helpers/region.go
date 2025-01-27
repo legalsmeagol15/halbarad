@@ -1,7 +1,9 @@
 package helpers
 
 import (
+	"fmt"
 	"math"
+	"strings"
 
 	"gonum.org/v1/gonum/mat"
 )
@@ -113,6 +115,19 @@ func (r region) GetUnion(other Region) Region {
 		res_a[i], res_b[i] = min(a[0], b[0]), max(a[1], b[1])
 	}
 	return NewRegion(res_a, res_b)
+}
+
+func (r region) String() string {
+	to_string := func(items []float64) []string {
+		result := make([]string, len(items))
+		for i, f := range items {
+			result[i] = fmt.Sprintf("%f", f)
+		}
+		return result
+	}
+	pt0, pt1 := mat.Row(nil, 0, r.points), mat.Row(nil, 1, r.points)
+	pt0_s, pt1_s := strings.Join(to_string(pt0), ","), strings.Join(to_string(pt1), ",")
+	return fmt.Sprintf("[%s] -> [%s]", pt0_s, pt1_s)
 }
 
 func (r region) checkCardinality(other Region) int {
