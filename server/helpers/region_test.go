@@ -353,7 +353,36 @@ func Test_region_GetUnion(t *testing.T) {
 		args   args
 		want   Region
 	}{
-		// TODO: Add test cases.
+		{
+			name:   "GetUnion2a - contained",
+			fields: fields{points: mat.NewDense(2, 2, []float64{0, 0, 10, 10})},
+			args:   args{other: NewRegion([]float64{1, 1}, []float64{9, 9})},
+			want:   NewRegion([]float64{0, 0}, []float64{10, 10}),
+		},
+		{
+			name:   "GetUnion2b - contained and border shared",
+			fields: fields{points: mat.NewDense(2, 2, []float64{0, 0, 10, 10})},
+			args:   args{other: NewRegion([]float64{1, 1}, []float64{10, 10})},
+			want:   NewRegion([]float64{0, 0}, []float64{10, 10}),
+		},
+		{
+			name:   "GetUnion2c - not contained. overlapped",
+			fields: fields{points: mat.NewDense(2, 2, []float64{0, 0, 10, 10})},
+			args:   args{other: NewRegion([]float64{1, 1}, []float64{11, 11})},
+			want:   NewRegion([]float64{0, 0}, []float64{11, 11}),
+		},
+		{
+			name:   "GetUnion2d - not contained and border shared",
+			fields: fields{points: mat.NewDense(2, 2, []float64{0, 0, 10, 10})},
+			args:   args{other: NewRegion([]float64{10, 10}, []float64{12, 12})},
+			want:   NewRegion([]float64{0, 0}, []float64{12, 12}),
+		},
+		{
+			name:   "GetUnion2e - not contained and completely distinct",
+			fields: fields{points: mat.NewDense(2, 2, []float64{0, 0, 5, 5})},
+			args:   args{other: NewRegion([]float64{6, 6}, []float64{10, 10})},
+			want:   NewRegion([]float64{0, 0}, []float64{10, 10}),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -368,87 +397,5 @@ func Test_region_GetUnion(t *testing.T) {
 }
 
 func Test_region_checkCardinality(t *testing.T) {
-	type fields struct {
-		points mat.Matrix
-	}
-	type args struct {
-		other Region
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		args   args
-		want   int
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			r := region{
-				points: tt.fields.points,
-			}
-			if got := r.checkCardinality(tt.args.other); got != tt.want {
-				t.Errorf("region.checkCardinality() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
 
-func Test_region_getContainingSubRegion(t *testing.T) {
-	type fields struct {
-		points mat.Matrix
-	}
-	type args struct {
-		bounds Region
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		args   args
-		want   int
-		want1  Region
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			r := region{
-				points: tt.fields.points,
-			}
-			got, got1 := r.getContainingSubRegion(tt.args.bounds)
-			if got != tt.want {
-				t.Errorf("region.getContainingSubRegion() got = %v, want %v", got, tt.want)
-			}
-			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("region.getContainingSubRegion() got1 = %v, want %v", got1, tt.want1)
-			}
-		})
-	}
-}
-
-func Test_region_getSubRegion(t *testing.T) {
-	type fields struct {
-		points mat.Matrix
-	}
-	type args struct {
-		index int
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		args   args
-		want   Region
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			r := region{
-				points: tt.fields.points,
-			}
-			if got := r.getSubRegion(tt.args.index); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("region.getSubRegion() = %v, want %v", got, tt.want)
-			}
-		})
-	}
 }
