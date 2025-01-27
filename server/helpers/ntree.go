@@ -54,9 +54,11 @@ func (t *NTree[T]) Add(item any, itemRegion Region) error {
 			// any particular dimension, we arbitrarily choose to expand closer to 0.0 for that
 			// dimension.
 			pt0, pt1 := make([]float64, card), make([]float64, card)
+			min_pt_i, max_pt_i := itemRegion.GetMin(), itemRegion.GetMax()
+			min_pt_c, max_pt_c := compareNode.bounds.GetMin(), compareNode.bounds.GetMax()
 			for d := 0; d < card; d++ {
-				i_min, i_max := itemRegion.GetMin(d), itemRegion.GetMax(d)
-				c_min, c_max := compareNode.bounds.GetMin(d), compareNode.bounds.GetMax(d)
+				i_min, i_max := min_pt_i[d], max_pt_i[d]
+				c_min, c_max := min_pt_c[d], max_pt_c[d]
 
 				if i_min < c_min {
 					pt0[d] = c_min - (c_max - c_min)
