@@ -274,7 +274,36 @@ func Test_region_GetIntersection(t *testing.T) {
 		args   args
 		want   Region
 	}{
-		// TODO: Add test cases.
+		{
+			name:   "GetIntersection2a - contained",
+			fields: fields{points: mat.NewDense(2, 2, []float64{0, 0, 10, 10})},
+			args:   args{other: NewRegion([]float64{1, 1}, []float64{9, 9})},
+			want:   NewRegion([]float64{1, 1}, []float64{9, 9}),
+		},
+		{
+			name:   "GetIntersection2b - contained and border shared",
+			fields: fields{points: mat.NewDense(2, 2, []float64{0, 0, 10, 10})},
+			args:   args{other: NewRegion([]float64{1, 1}, []float64{10, 10})},
+			want:   NewRegion([]float64{1, 1}, []float64{10, 10}),
+		},
+		{
+			name:   "GetIntersection2c - not contained. overlapped",
+			fields: fields{points: mat.NewDense(2, 2, []float64{0, 0, 10, 10})},
+			args:   args{other: NewRegion([]float64{1, 1}, []float64{11, 11})},
+			want:   NewRegion([]float64{1, 1}, []float64{10, 10}),
+		},
+		{
+			name:   "GetIntersection2d - not contained and border shared",
+			fields: fields{points: mat.NewDense(2, 2, []float64{0, 0, 10, 10})},
+			args:   args{other: NewRegion([]float64{10, 10}, []float64{12, 12})},
+			want:   NewRegion([]float64{10, 10}, []float64{10, 10}),
+		},
+		{
+			name:   "GetIntersection2e - not contained and completely distinct",
+			fields: fields{points: mat.NewDense(2, 2, []float64{0, 0, 5, 5})},
+			args:   args{other: NewRegion([]float64{6, 6}, []float64{10, 10})},
+			want:   nil,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
