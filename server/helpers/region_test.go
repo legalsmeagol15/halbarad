@@ -218,7 +218,36 @@ func Test_region_GetContains(t *testing.T) {
 		args   args
 		want   bool
 	}{
-		// TODO: Add test cases.
+		{
+			name:   "GetContains2a - contained",
+			fields: fields{points: mat.NewDense(2, 2, []float64{0, 0, 10, 10})},
+			args:   args{other: NewRegion([]float64{1, 1}, []float64{9, 9})},
+			want:   true,
+		},
+		{
+			name:   "GetContains2b - contained and border shared",
+			fields: fields{points: mat.NewDense(2, 2, []float64{0, 0, 10, 10})},
+			args:   args{other: NewRegion([]float64{1, 1}, []float64{10, 10})},
+			want:   true,
+		},
+		{
+			name:   "GetContains2c - not contained. overlapped",
+			fields: fields{points: mat.NewDense(2, 2, []float64{0, 0, 10, 10})},
+			args:   args{other: NewRegion([]float64{1, 1}, []float64{11, 11})},
+			want:   false,
+		},
+		{
+			name:   "GetContains2d - not contained and border shared",
+			fields: fields{points: mat.NewDense(2, 2, []float64{0, 0, 10, 10})},
+			args:   args{other: NewRegion([]float64{10, 10}, []float64{12, 12})},
+			want:   false,
+		},
+		{
+			name:   "GetContains2e - not contained and completely distinct",
+			fields: fields{points: mat.NewDense(2, 2, []float64{0, 0, 5, 5})},
+			args:   args{other: NewRegion([]float64{6, 6}, []float64{10, 10})},
+			want:   false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

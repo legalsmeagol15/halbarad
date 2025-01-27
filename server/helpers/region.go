@@ -118,6 +118,7 @@ func (r region) GetUnion(other Region) Region {
 func (r region) checkCardinality(other Region) int {
 	_, card := other.GetPoints().Dims()
 	if r.GetCardinality() != card {
+		// If cardinality is inconsistent, the caller is doing something sketchy.
 		panic("inconsistent cardinality")
 	}
 	return card
