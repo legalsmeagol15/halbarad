@@ -5,33 +5,14 @@ package helpers
 
 import (
 	"math"
+
+	"gonum.org/v1/gonum/mat"
 )
 
-// type GeomProperty uint16
-// type GeomIntersection uint16
-
-// const (
-// 	VECTOR GeomProperty = 1 << iota
-// 	REGION
-// 	COTERMINAL
-// 	COLINEAR
-// 	COPLANAR
-// )
-
-// const (
-// 	NO_OVERLAP GeomIntersection = 1 << iota
-// 	OVERLAP_EAST
-// 	OVERLAP_NORTH
-// 	OVERLAP_WEST
-// 	OVERLAP_SOUTH
-// 	CONTAINER = OVERLAP_EAST | OVERLAP_NORTH | OVERLAP_SOUTH | OVERLAP_WEST
-// )
-
-// type Geometry interface {
-// 	Cardinality() int
-// 	Simplify() Geometry
-// 	IsDefined() bool
-// }
+type Geometry interface {
+	GetPoints() mat.Matrix
+	SetPoints(mat.Matrix)
+}
 
 func VecSubtract(b, a []float64) []float64 {
 	card := len(a)

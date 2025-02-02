@@ -46,5 +46,4 @@ func Test_ntree_Add(t *testing.T) {
 	if tree.Remove("smooo") != nil {
 		t.Errorf("removal failed")
 	}
-
 }

@@ -43,10 +43,11 @@ type region struct {
 	points mat.Matrix
 }
 
-func (r region) GetCardinality() int   { _, c := r.points.Dims(); return c }
-func (r region) GetMin() []float64     { return mat.Row(nil, 0, r.points) }
-func (r region) GetMax() []float64     { return mat.Row(nil, 1, r.points) }
-func (r region) GetPoints() mat.Matrix { return r.points }
+func (r region) GetCardinality() int     { _, c := r.points.Dims(); return c }
+func (r region) GetMin() []float64       { return mat.Row(nil, 0, r.points) }
+func (r region) GetMax() []float64       { return mat.Row(nil, 1, r.points) }
+func (r region) GetPoints() mat.Matrix   { return r.points }
+func (r *region) SetPoints(m mat.Matrix) { r.points = mat.DenseCopyOf(m) }
 
 func (r region) GetArea() float64 {
 	card := r.GetCardinality()
