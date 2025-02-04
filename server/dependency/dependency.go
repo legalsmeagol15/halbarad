@@ -1,11 +1,12 @@
 package dependency
 
 import (
+	"halbarad/server/helpers"
 	"sync"
 )
 
 var (
-	Updates = make(chan Dependent, 512)
+	updates_in, Updates = helpers.NewUnboundedChan[Dependent](512)
 )
 
 type Dependent interface {
@@ -21,10 +22,15 @@ type dependent interface {
 
 func update_func(wg *sync.WaitGroup, sender, focus Dependent) {
 	defer wg.Done()
+	any_updated := true
 	if f, can_update := focus.(dependent); can_update {
 		if f.update(sender) {
-			Updates <- focus
+			updates_in <- focus
+			any_updated = true
 		}
+	}
+	if !any_updated {
+		return
 	}
 	focus_deps := focus.GetDependents()
 	wg.Add(len(focus_deps))
