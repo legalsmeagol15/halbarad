@@ -1,5 +1,13 @@
 package dependency
 
+import (
+	"sync"
+)
+
+var (
+	Updates = make(chan Dependent, 512)
+)
+
 type Dependent interface {
 	GetDependents() []Dependent
 	GetValue() any
@@ -8,39 +16,28 @@ type Dependent interface {
 type dependent interface {
 	getInputs() []any
 	getOper() func(a, b any) any
-	update(sender dependent) bool
+	update(sender Dependent) bool
 }
 
-type binaryDependent struct {
-	nexts            []Dependent
-	priors0, priors1 struct {
-		dep   Dependent
-		input any
+func update_func(wg *sync.WaitGroup, sender, focus Dependent) {
+	defer wg.Done()
+	if f, can_update := focus.(dependent); can_update {
+		if f.update(sender) {
+			Updates <- focus
+		}
 	}
-	oper  func(a, b any) any
-	value any
-}
-
-func (bd binaryDependent) GetDependents() []Dependent {
-	return []Dependent{bd.priors0.dep, bd.priors1.dep}
-}
-func (bd binaryDependent) GetValue() any    { return bd.value }
-func (bd binaryDependent) getInputs() []any { return []any{bd.priors0.input, bd.priors1.input} }
-func (bd binaryDependent) update(sender Dependent) bool {
-	if sender == bd.priors0.dep {
-		bd.priors0.input = sender.GetValue()
-	} else if sender == bd.priors1.dep {
-		bd.priors1.input = sender.GetValue()
-	} else {
-		panic("crap")
+	focus_deps := focus.GetDependents()
+	wg.Add(len(focus_deps))
+	for _, d := range focus_deps {
+		go update_func(wg, focus, d)
 	}
-	oldValue := bd.value
-	bd.value = bd.oper(bd.priors0.input, bd.priors1.input)
-	return oldValue != bd.value
 }
 
-func Update(d Dependent, wait bool) bool {
+func Update(d Dependent, wait bool) {
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go update_func(&wg, nil, d)
 	if wait {
-
+		wg.Wait()
 	}
 }
