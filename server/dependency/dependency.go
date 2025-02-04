@@ -1,6 +1,7 @@
 package dependency
 
 import (
+	"fmt"
 	"halbarad/server/helpers"
 	"sync"
 )
@@ -11,13 +12,22 @@ var (
 
 type Dependent interface {
 	GetDependents() []Dependent
-	GetValue() any
+	GetDependees() []Dependent
 	GetFormatter() string
+	GetValue() any
 }
 type dependent interface {
 	getInputs() []any
 	getOper() func(a, b any) any
 	update(sender Dependent) bool
+}
+type dependentLink struct {
+	dep   Dependent
+	value any
+}
+
+func (dl dependentLink) String() string {
+	return fmt.Sprintf("%s", dl.value)
 }
 
 func update_func(wg *sync.WaitGroup, sender, focus Dependent) {
