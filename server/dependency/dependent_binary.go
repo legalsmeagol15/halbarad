@@ -23,6 +23,9 @@ func (bd depBinary) update(sender Dependent) bool {
 	} else {
 		panic("crap")
 	}
+	return bd.updateValue()
+}
+func (bd depBinary) updateValue() bool {
 	oldValue := bd.value
 	bd.value = bd.oper(bd.priors0.value, bd.priors1.value)
 	return oldValue != bd.value
@@ -33,7 +36,7 @@ func CreateDependentBinary(input0, input1 Dependent, symbol string) *depBinary {
 	result := depBinary{
 		priors0:   priors0,
 		priors1:   priors1,
-		formatter: func() string { return fmt.Sprintf("%s%s%s", priors0, symbol, priors1) },
+		formatter: func() string { return fmt.Sprintf("%s%s%s", priors0.value, symbol, priors1.value) },
 	}
 
 	switch symbol {
@@ -46,7 +49,7 @@ func CreateDependentBinary(input0, input1 Dependent, symbol string) *depBinary {
 	case "/":
 		result.oper = division
 	}
-	result.value = result.oper(result.priors0.value, result.priors1.value)
+	result.updateValue()
 	return &result
 }
 
