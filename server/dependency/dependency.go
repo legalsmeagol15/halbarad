@@ -13,21 +13,26 @@ var (
 type Dependent interface {
 	GetDependents() []Dependent
 	GetDependees() []Dependent
-	GetFormatter() string
+	GetFormatted() string
 	GetValue() any
 }
 type dependent interface {
-	getInputs() []any
-	getOper() func(a, b any) any
 	update(sender Dependent) bool
 }
-type dependentLink struct {
+type depValTuple struct {
 	dep   Dependent
 	value any
 }
 
-func (dl dependentLink) String() string {
-	return fmt.Sprintf("%s", dl.value)
+func (dl depValTuple) String() string {
+	return fmt.Sprintf("->%s", dl.value)
+}
+func newDepValTuple(input any) depValTuple {
+	if _i, ok := input.(Dependent); ok {
+		return depValTuple{dep: _i, value: _i.GetValue()}
+	} else {
+		return depValTuple{dep: nil, value: input}
+	}
 }
 
 func update_func(wg *sync.WaitGroup, sender, focus Dependent) {

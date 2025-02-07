@@ -4,7 +4,7 @@ import "fmt"
 
 type depUnary struct {
 	nexts     []Dependent
-	prior     dependentLink
+	prior     depValTuple
 	formatter func() string
 	oper      func(a any) any
 	value     any
@@ -12,9 +12,8 @@ type depUnary struct {
 
 func (du depUnary) GetDependees() []Dependent  { return []Dependent{du.prior.dep} }
 func (du depUnary) GetDependents() []Dependent { return du.nexts }
-func (du depUnary) GetFormatter() string       { return du.formatter() }
+func (du depUnary) GetFormatted() string       { return du.formatter() }
 func (du depUnary) GetValue() any              { return du.value }
-func (du depUnary) getInputs() []any           { return []any{du.prior.value} }
 func (du depUnary) update(sender Dependent) bool {
 	if sender == du.prior.dep {
 		du.prior.value = sender.GetValue()
@@ -29,8 +28,8 @@ func (du depUnary) updateValue() bool {
 	return oldValue != du.value
 }
 
-func CreateDependentUnary(input Dependent, symbol string) *depUnary {
-	priors := link_or_literal(input)
+func NewDependentUnary(input Dependent, symbol string) *depUnary {
+	priors := newDepValTuple(input)
 	result := depUnary{
 		prior:     priors,
 		formatter: func() string { return fmt.Sprintf("%s%s", symbol, priors.value) },
@@ -50,6 +49,6 @@ func negation(a any) any {
 		return 0.0 - _a
 	}
 	return depError{
-		message: "invalid addition types",
+		message: "invalid negation types",
 	}
 }
