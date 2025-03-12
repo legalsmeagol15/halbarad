@@ -17,6 +17,26 @@ type Dependent interface {
 	GetValue() any
 }
 
+type dep graph.Dep
+
+func (d dep) GetDependees() []Dependent {
+	panic("do I need this?")
+	// result := make([]Dependent, len(d.Priors))
+	// for i := 0; i < len(d.Priors); i++ {
+	// 	result[i] = d.Priors[i].Dep
+	// }
+	// return result
+}
+func (d dep) GetDependents() []Dependent {
+	panic("to be implemented")
+	// result := make([]Dependent, len(d.Priors))
+	// for i := 0; i < len(d.Priors); i++ {
+
+	// }
+	// return result
+}
+func (d dep) GetValue() any { return d.Value }
+
 func Update(dependent Dependent, new_value any, wait bool) bool {
 
 	var (
@@ -26,17 +46,17 @@ func Update(dependent Dependent, new_value any, wait bool) bool {
 	)
 	update_func = func(d graph.Dep, sender graph.DepValTuple) {
 		defer wg.Done()
-		if d.update_value(sender) {
+		if d.UpdateValue(sender) {
 			changed = true
 		}
 		wg.Add(len(d.Nexts))
 		for _, child := range d.Nexts {
-			sender := graph.DepValTuple{dep: &d, value: d.Value}
+			sender := graph.DepValTuple{Dep: &d, Value: d.Value}
 			go update_func(child, sender)
 		}
 	}
 
-	if d, can_update := dependent.(graph.Dep); !can_update {
+	if d, can_update := dependent.(dep); !can_update {
 		return false
 	} else if d.Value == new_value {
 		return false
@@ -44,7 +64,7 @@ func Update(dependent Dependent, new_value any, wait bool) bool {
 		d.Value = new_value
 		wg.Add(1)
 		updates_in <- d
-		self_sender := graph.DepValTuple{dep: &d, value: new_value}
+		self_sender := graph.DepValTuple{Dep: &d, Value: new_value}
 		go update_func(d, self_sender)
 		if wait {
 			wg.Wait()
@@ -52,39 +72,4 @@ func Update(dependent Dependent, new_value any, wait bool) bool {
 		return changed
 	}
 
-}
-
-func (d graph.Dep) GetDependees() []Dependent {
-	result := make([]Dependent, len(d.Priors))
-	for i := 0; i < len(d.Priors); i++ {
-		result[i] = d.Priors[i].dep
-	}
-	return result
-}
-func (d graph.Dep) GetDependents() []Dependent {
-	result := make([]Dependent, len(d.Priors))
-	for i := 0; i < len(d.Priors); i++ {
-		result[i] = d.Nexts[i]
-	}
-	return result
-}
-func (d graph.Dep) GetValue() any { return d.Value }
-
-func (d *graph.Dep) update_value(sender graph.DepValTuple) bool {
-	inputs := make([]any, len(d.Priors))
-	changed := false
-
-	for i := 0; i < len(d.Priors); i++ {
-		if d.Priors[i].dep == sender.dep && d.Priors[i].Value != sender.Value {
-			d.Priors[i] = sender
-			changed = true
-		}
-		inputs[i] = d.Priors[i].Value
-	}
-	if changed {
-		old_value := d.Value
-		d.Value = d.oper(inputs...)
-		return old_value != d.Value
-	}
-	return false
 }
