@@ -4,7 +4,7 @@ import "halbarad/server/dependency/internal/operations"
 
 type Dep struct {
 	Nexts  []Dep
-	Priors []depValTuple
+	Priors []DepValTuple
 	Oper   operations.Oper
 	Value  any
 }
