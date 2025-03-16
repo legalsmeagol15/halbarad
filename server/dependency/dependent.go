@@ -2,6 +2,7 @@ package dependency
 
 import (
 	"halbarad/server/dependency/internal/graph"
+	"halbarad/server/dependency/internal/operations"
 	"halbarad/server/helpers"
 	"sync"
 )
@@ -12,64 +13,54 @@ var (
 
 // An interface which may have dependents and dependees
 type Dependent interface {
-	GetDependents() []Dependent
-	GetDependees() []Dependent
 	GetValue() any
 }
 
-type dep graph.Dep
+func NewDependent(oper operations.Oper, inputs ...any) Dependent {
+	c := make(chan graph.DepValTuple)
+	d := &graph.Dep{
+		Oper:    oper,
+		Updates: c,
+	}
+	for _, input := range inputs {
+		if child, ok := input.(*graph.Dep); ok {
+			child.AddListener(d)
+			d.AddSource(child)
+		}
+	}
+	go func() {
+		for dvt := range c {
+			if _, updated := d.UpdateValue(dvt); updated {
+				updates_in <- d
+				for n := range d.GetNexts() {
+					n.Updates <- d.ToDVT()
 
-func (d dep) GetDependees() []Dependent {
-	panic("do I need this?")
-	// result := make([]Dependent, len(d.Priors))
-	// for i := 0; i < len(d.Priors); i++ {
-	// 	result[i] = d.Priors[i].Dep
-	// }
-	// return result
-}
-func (d dep) GetDependents() []Dependent {
-	panic("to be implemented")
-	// result := make([]Dependent, len(d.Priors))
-	// for i := 0; i < len(d.Priors); i++ {
+				}
+			}
+		}
 
-	// }
-	// return result
+	}()
+	return d
 }
-func (d dep) GetValue() any { return d.Value }
 
 func Update(dependent Dependent, new_value any, wait bool) bool {
 
 	var (
-		wg          sync.WaitGroup
-		update_func func(graph.Dep, graph.DepValTuple)
-		changed     = false
+		wg  sync.WaitGroup
+		dep = dependent.(graph.Dep)
 	)
-	update_func = func(d graph.Dep, sender graph.DepValTuple) {
-		defer wg.Done()
-		if d.UpdateValue(sender) {
-			changed = true
-		}
-		wg.Add(len(d.Nexts))
-		for _, child := range d.Nexts {
-			sender := graph.DepValTuple{Dep: &d, Value: d.Value}
-			go update_func(child, sender)
-		}
-	}
 
-	if d, can_update := dependent.(dep); !can_update {
-		return false
-	} else if d.Value == new_value {
+	if dep.Value == new_value {
 		return false
 	} else {
-		d.Value = new_value
+		dep.Value = new_value
 		wg.Add(1)
-		updates_in <- d
-		self_sender := graph.DepValTuple{Dep: &d, Value: new_value}
-		go update_func(d, self_sender)
+		updates_in <- dep
+		self_sender := graph.DepValTuple{Dep: &dep, Value: new_value}
+		dep.Updates <- self_sender
 		if wait {
 			wg.Wait()
 		}
-		return changed
+		return true
 	}
-
 }

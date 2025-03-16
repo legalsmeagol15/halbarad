@@ -59,6 +59,8 @@ func as_numbers(inputs ...any) ([]literals.Number, error) {
 		switch typed := item.(type) {
 		case literals.Number:
 			result[i] = typed
+		case int:
+			result[i] = literals.Number(typed)
 		case string:
 			if f, err := strconv.ParseFloat(typed, 64); err != nil {
 				result[i] = literals.Number(f)
@@ -80,7 +82,7 @@ func as_strings(items ...any) []string {
 		case string:
 			result[i] = item
 		default:
-			panic(fmt.Errorf("unimplemented type: %t", item))
+			panic(fmt.Errorf("unimplemented type: %T", item))
 		}
 	}
 	return result
