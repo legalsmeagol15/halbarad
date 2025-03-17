@@ -11,11 +11,14 @@ var (
 	updates_in, Updates = helpers.NewUnboundedChan[Dependent](512)
 )
 
-// An interface which may have dependents and dependees
+// An interface which may have dependents (listeners) and dependees (sources).
 type Dependent interface {
 	GetValue() any
+	SetInputs(inputs ...any) graph.DepError
+	SetOper(oper operations.Oper) graph.DepError
 }
 
+// Creates a new dependency object that will perform the given operation on the given inputs.
 func NewDependent(oper operations.Oper, inputs ...any) Dependent {
 	c := make(chan graph.DepValTuple)
 	d := &graph.Dep{
@@ -24,6 +27,7 @@ func NewDependent(oper operations.Oper, inputs ...any) Dependent {
 	}
 	for _, input := range inputs {
 		if child, ok := input.(*graph.Dep); ok {
+			// Since this is a new dependent, we can dispense with search for dependency cycles.
 			child.AddListener(d)
 			d.AddSource(child)
 		}

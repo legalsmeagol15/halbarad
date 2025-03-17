@@ -1,17 +1,17 @@
 package graph
 
-type depError struct {
+type DepError struct {
 	msg string
 	src *Dep
 }
 
-func NewError(msg string, src *Dep) depError {
-	return depError{
+func NewError(msg string, src *Dep) DepError {
+	return DepError{
 		msg: msg,
 		src: src,
 	}
 }
 
-func (e *depError) Equals(other *depError) bool {
+func (e *DepError) Equals(other *DepError) bool {
 	return e.src == other.src && e.msg == other.msg
 }

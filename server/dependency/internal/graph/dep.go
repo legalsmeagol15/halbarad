@@ -2,6 +2,7 @@ package graph
 
 import (
 	"halbarad/server/dependency/internal/operations"
+	"halbarad/server/helpers"
 	"iter"
 )
 
@@ -21,6 +22,15 @@ type Dep struct {
 }
 
 func (d Dep) GetValue() any { return d.Value }
+func (d Dep) SetInputs(new_inputs ...any) DepError {
+	for _, ni := range new_inputs {
+		path := helpers.SearchDepthFirst(ni, func(item Dep) bool { return item == d })
+	}
+
+}
+func (d Dep) SetOper(oper operations.Oper) DepError {
+
+}
 
 func (d *Dep) UpdateValue(sender_dvt DepValTuple) (any, bool) {
 
@@ -55,7 +65,7 @@ func (d *Dep) UpdateValue(sender_dvt DepValTuple) (any, bool) {
 		d.Value = new_value
 		return d.Value, d.Value != old_value
 	} else {
-		old_error := d.Value.(depError)
+		old_error := d.Value.(DepError)
 		new_error := NewError(err.Error(), d)
 		if old_error.Equals(&new_error) {
 			return nil, false
