@@ -1,65 +1,63 @@
 package helpers
 
 // This does all the searchy things.
-func search_sync[T comparable](start T,
-	work_func func([]T) (T, []T),
-	is_match func(T) bool,
-	get_next func(T) []T,
-	get_weight func(T, T) float64,
-	allow_cycles bool,
-	depth_limit int) ([]T, float64) {
+func search_sync[TNode comparable](start *TNode,
+	work_func func([]*TNode) (*TNode, []*TNode),
+	is_goal func(TNode) bool,
+	get_next func(*TNode) []*TNode,
+	get_weight func(TNode, TNode) float64,
+	weight_limit float64) ([]TNode, float64) {
 
 	type datum struct {
-		item   T
-		path   []T
+		path   []TNode
 		weight float64
 	}
 	var (
-		reached = map[T]datum{start: datum{item: start, path: []T{}, weight: 0.0}}
-		queue   = []T{start}
+		result  = datum{path: nil, weight: weight_limit}
+		reached = map[*TNode]datum{start: {path: []TNode{}, weight: 0.0}}
+		queue   = []*TNode{start}
 	)
 
 	for len(queue) > 0 {
-		var item T
-		item, queue = work_func(queue)
-		d := reached[item]
-		if is_match(item) {
-			return d.path, d.weight
-		} else {
-			for _, child := range get_next(item) {
-				child_wt := get_weight(item, child)
-				if child_d, encountered := reached[child]; encountered && child_d.weight < d.weight+child_wt {
-					continue
-				} else {
-					reached[child] = datum{item: child, path: append(d.path, item), weight: child_wt} // The non-assigning use of 'append' is legit. I checked on PG
-					queue = append(queue, child)
+		var focus_node *TNode
+		focus_node, queue = work_func(queue)
+		focus_d := reached[focus_node]
+
+		for _, child := range get_next(focus_node) {
+			child_wt := focus_d.weight + get_weight(*focus_node, *child)
+			if child_wt > result.weight {
+				continue
+			} else if is_goal(*child) {
+				result = datum{weight: child_wt, path: append(focus_d.path, *focus_node)}
+
+				// Keep going in case a lower-weight path to goal can be found
+				continue
+			} else if child_d, encountered := reached[child]; encountered && child_d.weight < child_wt {
+				continue
+			} else {
+				reached[child] = datum{
+					path:   append(focus_d.path, *focus_node), // The non-assigning use of 'append' is legit. I checked on PG
+					weight: child_wt,
 				}
+				queue = append(queue, child)
 			}
 		}
 	}
-	return nil, 0.0
+	return result.path, result.weight
 }
 
 // Returns nil if there is no route between start and the matched goal.
-func SearchBreadthFirst[T comparable](start T, is_match func(T) bool, get_next func(T) []T, allow_cycles bool, depth_limit int) []T {
-	work_func := func(stack []T) (T, []T) {
-		return stack[0], stack[:1]
-	}
-	wt_func := func(T, T) float64 { return 1.0 }
-	result, _ := search_sync(start, work_func, is_match, get_next, wt_func, allow_cycles, depth_limit)
+func SearchBreadthFirst[TNode comparable](start *TNode, is_goal func(TNode) bool, get_next func(*TNode) []*TNode, depth_limit int) []TNode {
+	work_func := func(queue []*TNode) (*TNode, []*TNode) { return queue[0], queue[1:] }
+	wt_func := func(TNode, TNode) float64 { return 1.0 }
+	result, _ := search_sync(start, work_func, is_goal, get_next, wt_func, float64(depth_limit))
 	return result
 }
 
 // Returns nil if there is no route between start and the matched goal.
-func SearchDepthFirst[T comparable](start T, is_match func(T) bool, get_next func(T) []T, allow_cycles bool, depth_limit int) []T {
-	work_func := func(stack []T) (T, []T) {
-		return stack[len(stack)-1], stack[:len(stack)-1]
-	}
-	wt_func := func(T, T) float64 { return 1.0 }
-	result, _ := search_sync(start, work_func, is_match, get_next, wt_func, allow_cycles, depth_limit)
+func SearchDepthFirst[TNode comparable](start *TNode, is_goal func(TNode) bool, get_next func(*TNode) []*TNode, depth_limit int) []TNode {
+	work_func := func(stack []*TNode) (*TNode, []*TNode) { return stack[len(stack)-1], stack[:len(stack)-1] }
+	wt_func := func(TNode, TNode) float64 { return 1.0 }
+	result, _ := search_sync(start, work_func, is_goal, get_next, wt_func, float64(depth_limit))
 	return result
-}
-
-func SearchAsync[T comparable](start T, is_match func(T) bool, get_next func(T) []T, allow_cycles bool) []T {
-	panic("To be implemented")
 }
