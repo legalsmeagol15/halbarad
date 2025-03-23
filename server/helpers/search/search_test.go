@@ -1,4 +1,4 @@
-package helpers
+package search
 
 import (
 	"testing"
