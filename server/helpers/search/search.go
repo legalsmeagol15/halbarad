@@ -82,11 +82,12 @@ func SearchAsync[TNode comparable](
 					// have been overwritten since the last locked_read.
 					return
 				}
-				wg.Add(len(children))
-				for _, child := range children {
-					go driver(&focus_step, child)
-				}
+				reached[focus_node] = &focus_step
 			}()
+			wg.Add(len(children))
+			for _, child := range children {
+				go driver(&focus_step, child)
+			}
 		}
 	}
 
