@@ -23,7 +23,7 @@ func SearchAsync[TNode comparable](
 		result *Step[TNode]
 
 		ch_cancel = make(chan any, 1)
-		reached   = map[*TNode]*Step[TNode]{start: {Node: start, Weight: 0.0, Prior: nil}}
+		reached   = map[*TNode]*Step[TNode]{start: {Node: start, Prior: nil, Weight: 0.0, Depth: 0}}
 		wg        = sync.WaitGroup{}
 		cancelled = false
 
