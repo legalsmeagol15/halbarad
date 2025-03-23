@@ -23,23 +23,25 @@ func search_sync[TNode comparable](start *TNode,
 		focus_node, queue = work_func(queue)
 		focus_d := reached[focus_node]
 
-		for _, child := range get_next(focus_node) {
-			child_wt := focus_d.weight + get_weight(*focus_node, *child)
-			if child_wt > result.weight {
-				continue
-			} else if is_goal(*child) {
-				result = datum{weight: child_wt, path: append(focus_d.path, *focus_node)}
+		if children := get_next(focus_node); children != nil {
+			for _, child := range children {
+				child_wt := focus_d.weight + get_weight(*focus_node, *child)
+				if child_wt > result.weight {
+					continue
+				} else if is_goal(*child) {
+					result = datum{weight: child_wt, path: append(focus_d.path, *focus_node)}
 
-				// Keep going in case a lower-weight path to goal can be found
-				continue
-			} else if child_d, encountered := reached[child]; encountered && child_d.weight < child_wt {
-				continue
-			} else {
-				reached[child] = datum{
-					path:   append(focus_d.path, *focus_node), // The non-assigning use of 'append' is legit. I checked on PG
-					weight: child_wt,
+					// Keep going in case a lower-weight path to goal can be found
+					continue
+				} else if child_d, encountered := reached[child]; encountered && child_d.weight < child_wt {
+					continue
+				} else {
+					reached[child] = datum{
+						path:   append(focus_d.path, *focus_node), // The non-assigning use of 'append' is legit. I checked on PG
+						weight: child_wt,
+					}
+					queue = append(queue, child)
 				}
-				queue = append(queue, child)
 			}
 		}
 	}
