@@ -26,21 +26,22 @@ func SearchAsync[TNode comparable](
 		reached   = map[*TNode]*Step[TNode]{start: {Node: start, Weight: 0.0, Prior: nil}}
 		wg        = sync.WaitGroup{}
 		cancelled = false
+
+		cancel = func() {
+			defer recover()
+			close(ch_cancel)
+		}
+		wait = func() {
+			wg.Wait()
+			cancel()
+		}
 	)
 
 	go func() {
-		// This goroutine will run until the search is cancelled, and then ends the wait.
+		// This goroutine will run until the search is cancelled, and then sets the cancelled flag.
 		<-ch_cancel
 		cancelled = true
 	}()
-	cancel := func() {
-		defer recover()
-		close(ch_cancel)
-	}
-	wait := func() {
-		wg.Wait()
-		cancel()
-	}
 
 	driver = func(sender *Step[TNode], focus_node *TNode) {
 		defer wg.Done()
@@ -62,7 +63,9 @@ func SearchAsync[TNode comparable](
 			}
 		}
 
-		if is_goal(*focus_node) {
+		if focus_step.Weight > weight_limit {
+			return
+		} else if is_goal(*focus_node) {
 			*result = focus_step
 			cancel()
 			return
@@ -76,7 +79,7 @@ func SearchAsync[TNode comparable](
 				defer lock.Unlock()
 				if focus_step.Weight > reached[focus_node].Weight {
 					// We're checking weight once more because the reached[focus_node] step may
-					// have been overwritten since the last read.
+					// have been overwritten since the last locked_read.
 					return
 				}
 				wg.Add(len(children))
@@ -84,7 +87,6 @@ func SearchAsync[TNode comparable](
 					go driver(&focus_step, child)
 				}
 			}()
-
 		}
 	}
 
@@ -120,7 +122,9 @@ func search_sync[TNode comparable](start *TNode,
 		} else {
 			for _, child := range children {
 				child_wt := focus_step.Weight + get_weight(*focus_node, *child)
-				if child_node, exists := reached[child]; exists && child_wt > child_node.Weight {
+				if child_wt > weight_limit {
+					continue
+				} else if child_node, exists := reached[child]; exists && child_wt > child_node.Weight {
 					continue
 				} else {
 					child_step := &Step[TNode]{
