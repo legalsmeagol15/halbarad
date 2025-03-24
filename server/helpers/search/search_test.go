@@ -8,17 +8,6 @@ func TestSearchBreadthBasic(t *testing.T) {
 	tree := makeAcyclicTree()
 	var any_tree any = tree
 
-	get_next := func(item *any) []*any {
-		if node, ok := (*item).([]any); ok {
-			result := make([]*any, len(node))
-			for i, item := range node {
-				result[i] = &item
-			}
-			return result
-		}
-		return nil
-	}
-
 	is_goal := func(item any) bool { return item == 5 }
 	bfs := SearchBreadthFirst(&any_tree, is_goal, get_next, 1000)
 	if len(bfs) != 2 {
@@ -36,17 +25,6 @@ func TestDFSBasic(t *testing.T) {
 	tree := makeAcyclicTree()
 	var any_tree any = tree
 
-	get_next := func(item *any) []*any {
-		if node, ok := (*item).([]any); ok {
-			result := make([]*any, len(node))
-			for i, item := range node {
-				result[i] = &item
-			}
-			return result
-		}
-		return nil
-	}
-
 	is_goal := func(item any) bool { return item == 12 }
 	dfs := SearchDepthFirst(&any_tree, is_goal, get_next, 1000)
 	if len(dfs) != 3 {
@@ -60,6 +38,20 @@ func TestDFSBasic(t *testing.T) {
 	}
 }
 
+func TestAcyclicBasic(t *testing.T) {
+	var tree any = makeAcyclicTree()
+
+	is_goal := func(item any) bool { return item == 12 }
+
+	step, _, wait := SearchAsync(&tree, is_goal, get_next, func(any, any) float64 { return 1.0 }, 1000.0)
+
+	wait()
+	if *step.Node != 12 {
+		t.Errorf("unexpected endpoint: %v", step)
+	}
+
+}
+
 func makeAcyclicTree() []any {
 	tree := []any{
 		[]any{1, 2, 3},
@@ -70,4 +62,15 @@ func makeAcyclicTree() []any {
 		},
 	}
 	return tree
+}
+
+func get_next(item *any) []*any {
+	if node, ok := (*item).([]any); ok {
+		result := make([]*any, len(node))
+		for i, item := range node {
+			result[i] = &item
+		}
+		return result
+	}
+	return nil
 }

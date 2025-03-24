@@ -19,16 +19,27 @@ func SearchAsync[TNode comparable](
 	weight_limit float64) (*Step[TNode], func(), func()) {
 
 	var (
-		driver func(*Step[TNode], *TNode)
+		driver func(*Step[TNode], *TNode, float64, int)
 		result *Step[TNode]
 
 		ch_cancel = make(chan any, 1)
 		reached   = map[*TNode]*Step[TNode]{start: {Node: start, Prior: nil, Weight: 0.0, Depth: 0}}
 		wg        = sync.WaitGroup{}
 		cancelled = false
+		lock      = sync.RWMutex{}
+
+		locked_read = func(node *TNode) *Step[TNode] {
+			lock.RLocker().Lock()
+			defer lock.RLocker().Unlock()
+			if s, ok := reached[node]; ok {
+				return s
+			} else {
+				return nil
+			}
+		}
 
 		cancel = func() {
-			defer recover()
+			defer func() { recover() }()
 			close(ch_cancel)
 		}
 		wait = func() {
@@ -43,30 +54,19 @@ func SearchAsync[TNode comparable](
 		cancelled = true
 	}()
 
-	driver = func(sender *Step[TNode], focus_node *TNode) {
+	driver = func(sender *Step[TNode], focus_node *TNode, weight float64, depth int) {
 		defer wg.Done()
 		focus_step := Step[TNode]{
 			Node:   focus_node,
 			Prior:  sender,
-			Weight: sender.Weight + get_weight(*sender.Node, *focus_node),
-			Depth:  sender.Depth + 1,
-		}
-		lock := sync.RWMutex{}
-
-		locked_read := func(node *TNode) *Step[TNode] {
-			lock.RLocker().Lock()
-			defer lock.RLocker().Unlock()
-			if s, ok := reached[node]; ok {
-				return s
-			} else {
-				return nil
-			}
+			Weight: weight,
+			Depth:  depth,
 		}
 
 		if focus_step.Weight > weight_limit {
 			return
 		} else if is_goal(*focus_node) {
-			*result = focus_step
+			result = &focus_step
 			cancel()
 			return
 		} else if s := locked_read(focus_node); s != nil && focus_step.Weight > s.Weight {
@@ -77,7 +77,7 @@ func SearchAsync[TNode comparable](
 			func() {
 				lock.Lock()
 				defer lock.Unlock()
-				if focus_step.Weight > reached[focus_node].Weight {
+				if r, ok := reached[focus_node]; ok && focus_step.Weight > r.Weight {
 					// We're checking weight once more because the reached[focus_node] step may
 					// have been overwritten since the last locked_read.
 					return
@@ -86,14 +86,15 @@ func SearchAsync[TNode comparable](
 			}()
 			wg.Add(len(children))
 			for _, child := range children {
-				go driver(&focus_step, child)
+				go driver(&focus_step, child, focus_step.Weight+get_weight(*focus_node, *child), focus_step.Depth+1)
 			}
 		}
 	}
 
 	// Kick it off
 	wg.Add(1)
-	driver(nil, start)
+
+	driver(nil, start, 0.0, 0)
 
 	return result, cancel, wait
 }
