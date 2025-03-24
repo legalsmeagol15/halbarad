@@ -22,13 +22,13 @@ func TestSearchBreadthBasic(t *testing.T) {
 	is_goal := func(item any) bool { return item == 5 }
 	bfs := SearchBreadthFirst(&any_tree, is_goal, get_next, 1000)
 	if len(bfs) != 2 {
-		t.Errorf("Unexpected search results, len (%d): %s", len(bfs), bfs)
+		t.Errorf("Unexpected search results, len (%d): %v", len(bfs), bfs)
 	}
 
 	is_goal = func(item any) bool { return item == 10 }
 	bfs = SearchBreadthFirst(&any_tree, is_goal, get_next, 1000)
 	if len(bfs) != 3 {
-		t.Errorf("Unexpected search results, len (%d): %s", len(bfs), bfs)
+		t.Errorf("Unexpected search results, len (%d): %v", len(bfs), bfs)
 	}
 }
 
@@ -50,13 +50,13 @@ func TestDFSBasic(t *testing.T) {
 	is_goal := func(item any) bool { return item == 12 }
 	dfs := SearchDepthFirst(&any_tree, is_goal, get_next, 1000)
 	if len(dfs) != 3 {
-		t.Errorf("Unexpected search results, len (%d): %s", len(dfs), dfs)
+		t.Errorf("Unexpected search results, len (%d): %v", len(dfs), dfs)
 	}
 
 	is_goal = func(item any) bool { return item == 2 }
-	dfs = SearchBreadthFirst(&any_tree, is_goal, get_next, 1000)
+	dfs = SearchDepthFirst(&any_tree, is_goal, get_next, 1000)
 	if len(dfs) != 2 {
-		t.Errorf("Unexpected search results, len (%d): %s", len(dfs), dfs)
+		t.Errorf("Unexpected search results, len (%d): %v", len(dfs), dfs)
 	}
 }
 
