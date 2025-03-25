@@ -19,6 +19,12 @@ func TestSearchBreadthBasic(t *testing.T) {
 	if len(bfs) != 3 {
 		t.Errorf("Unexpected search results, len (%d): %v", len(bfs), bfs)
 	}
+	// Test that failure returns a null result
+	is_goal = func(item any) bool { return item == -1000 }
+	bfs = SearchBreadthFirst(&any_tree, is_goal, get_next, 1000)
+	if bfs != nil {
+		t.Errorf("Unexpected search results: %v", bfs)
+	}
 }
 
 func TestDFSBasic(t *testing.T) {
@@ -35,6 +41,13 @@ func TestDFSBasic(t *testing.T) {
 	dfs = SearchDepthFirst(&any_tree, is_goal, get_next, 1000)
 	if len(dfs) != 2 {
 		t.Errorf("Unexpected search results, len (%d): %v", len(dfs), dfs)
+	}
+
+	// Test that failure returns a null result
+	is_goal = func(item any) bool { return item == -1000 }
+	dfs = SearchDepthFirst(&any_tree, is_goal, get_next, 1000)
+	if dfs != nil {
+		t.Errorf("Unexpected search results: %v", dfs)
 	}
 }
 

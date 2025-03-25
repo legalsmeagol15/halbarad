@@ -169,6 +169,9 @@ func SearchDepthFirst[TNode comparable](start *TNode, is_goal func(TNode) bool, 
 }
 
 func toTNodeArray[TNode comparable](step *Step[TNode]) []*TNode {
+	if step.Depth < 0 {
+		return nil
+	}
 	result := make([]*TNode, step.Depth)
 	for i := len(result) - 1; i >= 0; i-- {
 		result[i] = step.Node
