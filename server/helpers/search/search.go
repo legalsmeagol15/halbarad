@@ -16,11 +16,11 @@ func SearchAsync[TNode comparable](
 	is_goal func(TNode) bool,
 	get_next func(*TNode) []*TNode,
 	get_weight func(TNode, TNode) float64,
-	weight_limit float64) (*Step[TNode], func(), func()) {
+	weight_limit float64) (*Step[TNode], func(), func() bool) {
 
 	var (
 		driver func(*Step[TNode], *TNode, float64, int)
-		result *Step[TNode]
+		result = &Step[TNode]{Prior: nil, Depth: -1}
 
 		ch_cancel = make(chan any, 1)
 		reached   = map[*TNode]*Step[TNode]{start: {Node: start, Prior: nil, Weight: 0.0, Depth: 0}}
@@ -42,9 +42,10 @@ func SearchAsync[TNode comparable](
 			defer func() { recover() }()
 			close(ch_cancel)
 		}
-		wait = func() {
+		wait = func() bool {
 			wg.Wait()
 			cancel()
+			return result.Depth >= 0
 		}
 	)
 
@@ -63,13 +64,13 @@ func SearchAsync[TNode comparable](
 			Depth:  depth,
 		}
 
-		if focus_step.Weight > weight_limit {
+		if weight > weight_limit {
 			return
 		} else if is_goal(*focus_node) {
-			result = &focus_step
+			*result = focus_step
 			cancel()
 			return
-		} else if s := locked_read(focus_node); s != nil && focus_step.Weight > s.Weight {
+		} else if s := locked_read(focus_node); s != nil && weight > s.Weight {
 			return
 		} else if cancelled {
 			return
@@ -77,7 +78,7 @@ func SearchAsync[TNode comparable](
 			func() {
 				lock.Lock()
 				defer lock.Unlock()
-				if r, ok := reached[focus_node]; ok && focus_step.Weight > r.Weight {
+				if r, ok := reached[focus_node]; ok && weight > r.Weight {
 					// We're checking weight once more because the reached[focus_node] step may
 					// have been overwritten since the last locked_read.
 					return
@@ -93,7 +94,6 @@ func SearchAsync[TNode comparable](
 
 	// Kick it off
 	wg.Add(1)
-
 	driver(nil, start, 0.0, 0)
 
 	return result, cancel, wait

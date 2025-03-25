@@ -53,14 +53,23 @@ func TestDFSBasic(t *testing.T) {
 
 func TestAcyclicBasic(t *testing.T) {
 	var tree any = makeAcyclicTree()
+	equal_weight := func(any, any) float64 { return 1.0 }
 
 	is_goal := func(item any) bool { return item == 12 }
 
-	step, _, wait := SearchAsync(&tree, is_goal, get_next, func(any, any) float64 { return 1.0 }, 1000.0)
-
-	wait()
-	if *step.Node != 12 {
+	step, _, wait := SearchAsync(&tree, is_goal, get_next, equal_weight, 1000.0)
+	if !wait() {
+		t.Errorf("unexpected failure to find goal.")
+	} else if *step.Node != 12 {
 		t.Errorf("unexpected endpoint: %v", step)
+	}
+
+	is_goal = func(item any) bool { return item == -1000 }
+	step, _, wait = SearchAsync(&tree, is_goal, get_next, equal_weight, 1000)
+	if wait() {
+		t.Errorf("unexpected success in finding goal")
+	} else if step.Depth >= 0 {
+		t.Errorf("result step is malformed for what should be a failure: %v", *step)
 	}
 
 }
