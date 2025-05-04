@@ -3,6 +3,7 @@ package graph
 import (
 	"halbarad/server/dependency/internal/operations"
 	"halbarad/server/helpers"
+	"halbarad/server/helpers/search"
 	"iter"
 )
 
@@ -22,8 +23,14 @@ type Dep struct {
 }
 
 func (d Dep) GetValue() any { return d.Value }
-func (d Dep) SetInputs(new_inputs ...any) DepError {
+func (d *Dep) SetInputs(new_inputs ...any) DepError {
+	is_goal := func(a any) bool { return a == d }
+	get_next := func(node *any) {
+
+	}
 	for _, ni := range new_inputs {
+		step := search.SearchAsync(ni, func(a any) { return a == d }, func(*any))
+
 		path := helpers.SearchDepthFirst(ni, func(item Dep) bool { return item == d })
 	}
 
