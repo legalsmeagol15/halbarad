@@ -36,7 +36,6 @@ function showLoginModal() {
   
   // Handle Login Form submission
   document.getElementById('loginForm').addEventListener('submit', function(event) {
-    console.log("Click")
     event.preventDefault(); // Prevent the default form submission
   
     // Get the values from the input fields
@@ -48,6 +47,35 @@ function showLoginModal() {
         document.getElementById('message').innerText = 'Please fill in all fields.';
         return;
     }
+
+    
+    console.log("Submitteding to backend")
+
+    // Send login data to backend
+    fetch('/api/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ username, password })
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Login failed');
+      }
+      return response.json(); // Expect JSON with token
+    })
+    .then(data => {
+      // Assuming server sends { token: "JWT token string" }
+      const token = data.token;
+      // Store token for future use
+      localStorage.setItem('authToken', token);
+      document.getElementById('message').textContent = 'Login successful!';
+    })
+    .catch(error => {
+      document.getElementById('message').textContent = 'Login failed: ' + error.message;
+    });
+    
   });
   
   // Handle register Form submission
@@ -63,5 +91,6 @@ function showLoginModal() {
         document.getElementById('message').innerText = 'Please fill in all fields.';
         return;
     }
+
   });
   

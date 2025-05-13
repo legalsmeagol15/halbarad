@@ -1,0 +1,9 @@
+# This file is intended to be overwritten by a ConfigMap in prod.
+
+connection:
+  # Might someday use this for CORS setup
+  api: localhost:9001
+
+  env: dev
+  region: us-west1
+  language: English

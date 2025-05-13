@@ -13,6 +13,17 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
+
+    <script src="https://cdn.jsdelivr.net/npm/js-yaml/dist/js-yaml.min.js"></script>
+    <script>
+        fetch('resources/config.yaml')
+            .then(response => response.text())
+            .then(yamlText => {
+                const config = jsyaml.load(yamlText);
+                console.log(config);
+            })
+            .catch(error => console.error('Error fetching YAML:', error));
+    </script>
 </head>
 
 <body>
