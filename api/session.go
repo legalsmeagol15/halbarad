@@ -1,5 +1,8 @@
 package main
 
-type Data struct {
-	Token string
+import "time"
+
+type registerEntry struct {
+	Token  string
+	Expiry time.Time
 }

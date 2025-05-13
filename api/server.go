@@ -74,12 +74,12 @@ func (h *Hub) run() {
 func serveSession(hub *Hub, w http.ResponseWriter, r *http.Request) {
 
 	// Authenticate
-	data := Data{}
-	err := json.NewDecoder(r.Body).Decode(&data)
+	entry := registerEntry{}
+	err := json.NewDecoder(r.Body).Decode(&entry)
 	if err != nil {
 		// Handle decoding error
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Bad"))
+		w.Write([]byte("Bad request"))
 		return
 	}
 
@@ -125,16 +125,26 @@ func (c *Client) writePump() {
 	c.conn.Close()
 }
 
-func handleAuth(w http.ResponseWriter, r *http.Request) {
-
-}
-func handleRegister(w http.ResponseWriter, r *http.Request) {
-	if hashed, err := hashPswd("a", "b"); err != nil {
+func handleCreateAccount(w http.ResponseWriter, r *http.Request) {
+	creds := credentials{}
+	if err := json.NewDecoder(r.Body).Decode(&creds); err != nil {
+		// Handle decoding error
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Bad account credentials"))
+	} else if creds.Password, err = hashPswd(creds.Password); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Internal server error while registering"))
+		w.Write([]byte("Internal server error while creating account"))
+	} else if _, err = getClient(creds); err == nil {
+		// Would indicate a duplicate
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Bad account credentials"))
+	} else if err = createAccount(creds); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Internal server error while creating account"))
 	} else {
-		err = createAccount()
+		w.WriteHeader(http.StatusCreated)
 	}
+
 }
 
 func main() {
@@ -144,7 +154,7 @@ func main() {
 	http.HandleFunc("/session", func(w http.ResponseWriter, r *http.Request) {
 		serveSession(hub, w, r)
 	})
-	http.HandleFunc("/register", handleRegister)
+	http.HandleFunc("/create_account", handleCreateAccount)
 
 	log.Println("Server listening on :8080")
 	err := http.ListenAndServe(":8080", nil)
