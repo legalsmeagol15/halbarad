@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Halbard - Main</title>
+    
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <link rel="shortcut icon" href="resources/lighter_hand.jpg">
+    <link rel="icon" type="image/gif" href="resources/lighter_hand.jpg">
+
+</head>
+<body>
+    <nav>
+        <ul id="menu">
+            <li>File
+                <ul class="dropdown">
+                    <li>Save</li>
+                    <li>Open</li>
+                    <li>Close</li>
+                </ul>
+            </li>
+            <li>Team
+                <ul class="dropdown">
+                    <li>Settings</li>
+                    <li>Connect</li>
+                    <li class="disabled">Disconnect</li>
+                </ul>
+            </li>
+            <li>Edit
+                <ul class="dropdown">
+                    <li>Erase</li>
+                    <li>Modify</li>
+                    <li>Appearance</li>
+                </ul>
+            </li>
+            <li>Dimension
+                <ul class="dropdown">
+                    <!-- Empty for now -->
+                </ul>
+            </li>
+            <li>Help
+                <ul class="dropdown">
+                    <li id="about">About</li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main content area -->
+    <div id="main-content">
+        <!-- Your main application features go here -->
+    </div>
+
+    <div id="canvas-container">
+        <canvas id="main-canvas"></canvas>
+    </div>
+
+    <div id="bottom-control-panel" class="bottom-ribbon">
+        <!-- Text entry box (fill remaining space) -->
+        <input type="text" id="view-input" placeholder="Enter view parameters" />
+
+        <!-- Preset view buttons -->
+        <button id="view-front">Front</button>
+        <button id="view-top">Top</button>
+        <button id="view-side">Side</button>
+
+        <!-- Read-only current view params display -->
+        <span id="current-view-params">Current view: ...</span>
+    </div>
+
+    <script src="scripts/main.js"></script> <!-- Link to your JavaScript file -->
+</body>
+</html>

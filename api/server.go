@@ -144,7 +144,16 @@ func handleCreateAccount(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.WriteHeader(http.StatusCreated)
 	}
+}
 
+func handleDemo(w http.ResponseWriter, r *http.Request) {
+	// session, _ := store.Get(r, "session-name")
+	// session.Values["authenticated"] = true // or set a demo user id
+	// session.Save(r, w)
+
+	// Respond with an appropriate message
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Logged in as demo user"))
 }
 
 func main() {
@@ -155,6 +164,7 @@ func main() {
 		serveSession(hub, w, r)
 	})
 	http.HandleFunc("/create_account", handleCreateAccount)
+	http.HandleFunc("/logged_in", handleDemo)
 
 	log.Println("Server listening on :8080")
 	err := http.ListenAndServe(":8080", nil)

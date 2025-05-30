@@ -93,4 +93,9 @@ function showLoginModal() {
     }
 
   });
+
+  // SMOOO: Remove this once login is working
+  document.getElementById('demoLoginBttn').addEventListener('click', () => {
+    window.location.href = 'main.html'; 
+});
   

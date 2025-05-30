@@ -16,7 +16,9 @@ func hashPswd(password string) (string, error) {
 }
 
 func getClient(creds credentials) (*Client, error) {
-	return nil, nil
+	// TODO: retrieve the client from storage
+	c := Client{}
+	return &c, nil
 }
 
 func createAccount(credentials) error {

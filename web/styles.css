@@ -82,6 +82,48 @@ body, html {
   filter: blur(5px);
 }
 
+/* Basic styling for menu*/
+nav ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+nav > ul {
+    display: flex;
+}
+
+nav li {
+    position: relative;
+    margin-right: 20px;
+    cursor: pointer;
+}
+
+.dropdown {
+    display: none;
+    position: absolute;
+    list-style: none;
+    padding: 10px;
+    /* background-color: white; */
+    background-color: rgb(0,0,0); /* Fallback color */
+    border: 1px solid #ccc;
+}
+
+nav li:hover .dropdown {
+    display: block;
+}
+
+.disabled {
+    color: grey;
+    pointer-events: none;
+}
+
+.close {
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
 /* Modal Styles */
 .modal {
   display: none; /* Hidden by default */
@@ -123,4 +165,106 @@ body, html {
   color: black;
   text-decoration: none;
   cursor: pointer;
+}
+
+/* Ribbon container at bottom */
+#bottom-control-panel {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    background-color: #eee; /* light grey background */
+    border-top: 1px solid #ccc;
+    position: fixed; /* stay at bottom */
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50px; /* adjust as needed */
+    box-sizing: border-box;
+}
+
+/* Make the input fill remaining space */
+#view-input {
+    flex: 1; /* fills all available space */
+    margin-right: 10px; /* space between input and buttons */
+    height: 30px; /* adjust height if needed */
+    padding: 4px 8px;
+    font-size: 14px;
+}
+
+/* Buttons styling */
+#bottom-control-panel button {
+    margin-right: 8px;
+    height: 36px;
+    padding: 4px 8px;
+}
+
+/* Current view display styling */
+#current-view-params {
+    margin-left: auto; /* push to right side */
+    background-color: #fff;
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: monospace; /* for uniform text */
+}
+
+/* Ensure the body takes the full height */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Keep the top menu fixed or at the top as desired ... */
+
+#canvas-container {
+  flex: 1; /* fills remaining space between top and bottom */
+  position: relative;
+  overflow: auto; /* to enable scrollbars */
+  background: #f0f0f0;
+  padding: 10px;
+}
+
+/* Canvas size (large enough for scrolling) */
+#main-canvas {
+  width: 2000px; /* or any large size for panning area */
+  height: 2000px;
+  background-color: white;
+  display: block;
+}
+
+/* Fixed bottom control panel */
+#bottom-control-panel {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  background-color: #eee;
+  border-top: 1px solid #ccc;
+  height: 50px;
+  /* stay at bottom, but since body is flex column, this will stay at bottom */
+}
+
+#view-input {
+  flex: 1;
+  margin-right: 10px;
+  height: 30px;
+  padding: 4px 8px;
+  font-size: 14px;
+}
+
+#bottom-control-panel button {
+  margin-right: 8px;
+  height: 36px;
+  padding: 4px 8px;
+}
+
+#current-view-params {
+  margin-left: auto;
+  background: #fff;
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-family: monospace;
 }
