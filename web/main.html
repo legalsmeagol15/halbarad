@@ -60,15 +60,24 @@
         <!-- Text entry box (fill remaining space) -->
         <input type="text" id="view-input" placeholder="Enter view parameters" />
 
-        <!-- Preset view buttons -->
+        <!-- Read-only current view display -->
         <button id="view-front">Front</button>
         <button id="view-top">Top</button>
         <button id="view-side">Side</button>
 
-        <!-- Read-only current view params display -->
-        <span id="current-view-params">Current view: ...</span>
+        <div id="mini-map">
+            <canvas id="mini-map-canvas" width="200" height="100"></canvas>
+        </div>
+        <div id="current-coords">x,y</div>
     </div>
 
-    <script src="scripts/main.js"></script> <!-- Link to your JavaScript file -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.177.0/build/three.module.js"
+            }
+        }
+    </script>
+    <script src="scripts/main.js" type="module"></script> <!-- Link to your JavaScript file -->
 </body>
 </html>

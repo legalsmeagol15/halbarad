@@ -1,19 +1,22 @@
-//window.location.href = 'main.html';
+import * as THREE from 'three';
 
-// Example: update current view parameters display
-function updateCurrentViewParams(paramsText) {
-    document.getElementById('current-view-params').textContent = 'Current view: ' + paramsText;
+let scale = 1.0;
+const rescaleFactor = 1.1;
+let offsetX = 0, offsetY = 0;
+
+function getMouse(element, event){
+    let rect = element.getBoundingClientRect();
+    const mouseX = ((event.clientX - rect.left) / scale) + offsetX;
+    const mouseY = ((event.clientY - rect.top) / scale) + offsetY;
+    return [mouseX, mouseY];
 }
+
+// Current view parameters display
+const coordsDisplay = document.getElementById('current-coords');
 
 // Button event listeners
 document.getElementById('view-front').addEventListener('click', () => {
     // set view to front orientation
-});
-document.getElementById('view-top').addEventListener('click', () => {
-    // set view to top orientation
-});
-document.getElementById('view-side').addEventListener('click', () => {
-    // set view to side orientation
 });
 
 // Entry box event (e.g., on enter)
@@ -32,16 +35,39 @@ const canvasContainer = document.getElementById('canvas-container');
 window.addEventListener('DOMContentLoaded', () => {
     draw(); // draw initial scene
 });
-
-
 canvasContainer.addEventListener('scroll', () => {
     const scrollX = canvasContainer.scrollLeft;
     const scrollY = canvasContainer.scrollTop;
     console.log('Scroll:', scrollX, scrollY);
 });
 
+
+// THE CANVAS ITSELF
 const canvas = document.getElementById('main-canvas');
 
+canvas.addEventListener('mousemove', (event) => {
+    const [mouseX, mouseY] = getMouse(canvas, event);
+    coordsDisplay.textContent = "x:" + mouseX + ", y:" + mouseY;
+});
+
+
+canvas.addEventListener('wheel', (event) => {
+    event.preventDefault();
+    const [mouseX, mouseY] = getMouse(canvas, event);
+    
+    let newScale = scale;
+    if (event.deltaY < 0) {
+        newScale *= rescaleFactor;
+    } else {
+        newScale /= rescaleFactor;
+    }
+    offsetX = mouseX - ((mouseX - offsetX) * (newScale / scale));
+    offsetY = mouseY - ((mouseY - offsetY) * (newScale / scale));
+    scale = newScale;
+
+    console.log('Scale:', scale, "  mouseX:", mouseX, "  mouseY:", mouseY, "  offsetX:", offsetX, "  offsetY:", offsetY);
+    draw();
+});
 
 const container = document.getElementById('canvas-container');
 container.addEventListener('scroll', () => {
@@ -51,12 +77,21 @@ container.addEventListener('scroll', () => {
 function draw() {
     
     const ctx = canvas.getContext('2d');
-    ctx['imageSmoothingEnabled'] = false;
+    ctx.imageSmoothingEnabled = false;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // None of these work!
+    // ctx['imageSmoothingEnabled'] = false;       /* standard */
+    // ctx['mozImageSmoothingEnabled'] = false;    /* Firefox */
+    // ctx['oImageSmoothingEnabled'] = false;      /* Opera */
+    // ctx['webkitImageSmoothingEnabled'] = false; /* Safari */
+    // ctx['msImageSmoothingEnabled'] = false;     /* IE */
     
     // SOME EXAMPLE LINES FOR TESTING
     ctx.lineCap = 'butt';
     ctx.lineJoin = 'miter';
+    ctx.save();
+    ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY);
 
     ctx.strokeStyle = 'blue';
     ctx.lineWidth = 3;
@@ -67,6 +102,7 @@ function draw() {
 
     // ANOTHER EXAMPLE LINE FOR TESTING
     ctx.strokeStyle = 'green';
+    ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(10.5, 30.5);
     ctx.lineTo(305.5, 35.5);
@@ -78,4 +114,6 @@ function draw() {
     ctx.moveTo(0, 5);
     ctx.bezierCurveTo(50, 20, 25, 10, 35, 15);
     ctx.stroke();
+
+    ctx.restore();
 }
